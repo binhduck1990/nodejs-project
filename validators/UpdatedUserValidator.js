@@ -39,6 +39,7 @@ validate = async(req) => {
         });
         return listError
     }
+    
     return user
 }
 
