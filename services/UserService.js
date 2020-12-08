@@ -41,16 +41,14 @@ createdUser = (req) => {
         username: req.body.username,
         password: req.body.password,
         age: req.body.age,
-        address: req.body.address
+        address: req.body.address,
+        phone: req.body.phone,
+        email: req.body.email
     })
 }
 
-findUserByIdAndUpdate = (req) => {
-    return userModel.findByIdAndUpdate(req.params.id, {
-        $set: {
-            username: req.body.username
-        }
-    },{new: true})
+updatedUser = (user) => {
+    return user.save()
 }
 
 module.exports = {
@@ -59,5 +57,5 @@ module.exports = {
     findOneUser: findOneUser,
     findUserByIdAndRemove: findUserByIdAndRemove,
     createdUser: createdUser,
-    findUserByIdAndUpdate: findUserByIdAndUpdate
+    updatedUser: updatedUser
 }

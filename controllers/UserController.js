@@ -1,5 +1,7 @@
+const user = require('../models/user')
 const userService = require('../services/UserService')
 const createdUserValidator = require('../validators/CreatedUserValidator')
+const updatedUserValidator = require('../validators/UpdatedUserValidator')
 
 // users paginate
 paginate = async (req, res) => {
@@ -29,7 +31,7 @@ show = async (req, res) => {
     try {
         const user = await userService.findUserById(req.params.id)
         if(!user){
-            return res.status(404).json({message: 'user not found'})
+            return res.status(400).json({message: 'user not found'})
         }
         res.status(200).json({message: 'success', data: user})
     } catch (error) {
@@ -42,7 +44,7 @@ destroy = async (req, res) => {
     try {
         const removedUser = userService.findUserByIdAndRemove(req.params.id)
         if(!removedUser){
-            return res.status(404).json({message: 'user not found'})
+            return res.status(400).json({message: 'user not found'})
         }
         res.status(200).json({message: 'success', data: removedUser})
     } catch (error) {
@@ -52,9 +54,9 @@ destroy = async (req, res) => {
 
 // create user
 create = async (req, res) => {
-    const validatedData = createdUserValidator.validate(req)
+    const validatedData = await createdUserValidator.validate(req)
     if(Object.getOwnPropertyNames(validatedData).length !== 0){
-        return res.status(404).json({message: validatedData})
+        return res.status(400).json({message: validatedData})
     }
     try {
         const createdUser = await userService.createdUser(req)
@@ -67,10 +69,11 @@ create = async (req, res) => {
 // update user
 update = async (req, res) => {
     try{
-        const updatedUser = await userService.findUserByIdAndUpdate(req)
-        if(!updatedUser){
-            return res.status(404).json({message: 'user not found'})
+        const validatedData = await updatedUserValidator.validate(req)
+        if(!(validatedData instanceof user)){
+            return res.status(400).json({message: validatedData})
         }
+        const updatedUser = await userService.updatedUser(validatedData)
         res.status(200).json({message: 'success', data: updatedUser})
     }catch (error) {
         if (error.kind === "ObjectId") {
