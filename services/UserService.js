@@ -45,7 +45,8 @@ createdUser = async (req) => {
         age: req.body.age,
         address: req.body.address,
         phone: req.body.phone,
-        email: req.body.email
+        email: req.body.email,
+        active: req.body.active
     })
 }
 

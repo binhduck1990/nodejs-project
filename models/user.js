@@ -35,8 +35,10 @@ const userSchema = new Schema({
     },
     phone: {
       type: String,
-      minLength: 10,
       maxlength: 50
+    },
+    active: {
+      type: Boolean
     }
   }, {
     collection: 'user',

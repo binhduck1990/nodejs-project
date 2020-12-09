@@ -48,7 +48,7 @@ show = async (req, res) => {
 // remove user
 destroy = async (req, res) => {
     try {
-        const removedUser = userService.findUserByIdAndRemove(req.params.id)
+        const removedUser = await userService.findUserByIdAndRemove(req.params.id)
         if(!removedUser){
             return res.status(400).json({message: 'user not found'})
         }

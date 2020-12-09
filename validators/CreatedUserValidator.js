@@ -8,7 +8,8 @@ validate = async (req) => {
         age: req.body.age,
         address: req.body.address,
         phone: req.body.phone,
-        email: req.body.email
+        email: req.body.email,
+        active: req.body.active
     })
 
     const findUserByEmail = await userModel.findOne({email: req.body.email})
