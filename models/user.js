@@ -11,8 +11,7 @@ const userSchema = new Schema({
     password: {
       type: String,
       required: true,
-      minLength: 8,
-      maxlength: 15
+      minLength: 8
     },
     email: {
       type: String,

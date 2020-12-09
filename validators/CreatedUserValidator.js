@@ -11,8 +11,8 @@ validate = async (req) => {
         email: req.body.email
     })
 
-    const findUser = await userModel.findOne({email: req.body.username, password: req.body.password})
-    if(findUser){
+    const findUserByEmail = await userModel.findOne({email: req.body.email})
+    if(findUserByEmail){
         return {
             message: 'user exist'
         }

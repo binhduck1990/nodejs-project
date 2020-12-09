@@ -2,6 +2,7 @@ const user = require('../models/user')
 const userService = require('../services/UserService')
 const createdUserValidator = require('../validators/CreatedUserValidator')
 const updatedUserValidator = require('../validators/UpdatedUserValidator')
+const bcrypt = require('bcrypt')
 
 // users paginate
 paginate = async (req, res) => {
@@ -17,11 +18,16 @@ paginate = async (req, res) => {
 login = async (req, res) => {
     try {
         const user = await userService.findOneUser(req)
-        if(!user){
-            return res.status(400).json({message: 'wrong user or password'})
+        if(user){
+            const comparePassword = await bcrypt.compare(req.body.password, user.password)
+            if(!comparePassword){
+                return res.status(400).json({message: 'wrong email or password'})
+            }
+            return res.status(200).json({message: 'success'})  
         }
-        res.status(200).json({message: 'success'})     
+        return res.status(400).json({message: 'wrong email or password'})   
     } catch (error) {
+        console.log('error', error)
         res.status(404).json({message: error});
     }
 }
@@ -54,11 +60,11 @@ destroy = async (req, res) => {
 
 // create user
 create = async (req, res) => {
-    const validatedData = await createdUserValidator.validate(req)
-    if(Object.getOwnPropertyNames(validatedData).length !== 0){
-        return res.status(400).json({message: validatedData})
-    }
     try {
+        const validatedData = await createdUserValidator.validate(req)
+        if(Object.getOwnPropertyNames(validatedData).length !== 0){
+            return res.status(400).json({message: validatedData})
+        }
         const createdUser = await userService.createdUser(req)
         res.status(201).json({message: 'success', data: createdUser})
     }catch (error) {
@@ -85,10 +91,10 @@ update = async (req, res) => {
 }
 
 module.exports = {
-    paginate: paginate,
-    login: login,
-    show: show,
-    destroy: destroy,
-    create: create,
-    update: update
+    paginate,
+    login,
+    show,
+    destroy,
+    create,
+    update
 }

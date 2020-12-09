@@ -1,11 +1,12 @@
 const userModel = require("../models/user");
+const bcrypt = require('bcrypt');
 
 findUserById = (id) => {
     return userModel.findById(id)
 }
 
 findOneUser = (req) => {
-    return userModel.findOne({ username: req.body.username, password: req.body.password })
+    return userModel.findOne({ email: req.body.email})
 }
 
 paginate = async (req) => {
@@ -36,10 +37,11 @@ findUserByIdAndRemove = (id) => {
     return userModel.findByIdAndRemove(id)
 }
 
-createdUser = (req) => {
+createdUser = async (req) => {
+    const bcriptPassword = await bcrypt.hash(req.body.password, 10)
     return userModel.create({
         username: req.body.username,
-        password: req.body.password,
+        password: bcriptPassword,
         age: req.body.age,
         address: req.body.address,
         phone: req.body.phone,
@@ -52,10 +54,10 @@ updatedUser = (user) => {
 }
 
 module.exports = {
-    paginate: paginate,
-    findUserById: findUserById,
-    findOneUser: findOneUser,
-    findUserByIdAndRemove: findUserByIdAndRemove,
-    createdUser: createdUser,
-    updatedUser: updatedUser
+    paginate,
+    findUserById,
+    findOneUser,
+    findUserByIdAndRemove,
+    createdUser,
+    updatedUser
 }
