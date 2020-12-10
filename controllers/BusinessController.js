@@ -9,7 +9,6 @@ paginate = async (req, res) => {
         const paginate = await businessService.paginate(req)
         res.status(200).json({message: 'success', data: paginate.business, total: paginate.total})
     } catch (error) {
-        console.log('error',error)
         res.status(404).json({message: error})
     }
 }
@@ -24,7 +23,6 @@ create = async (req, res) => {
         const createdBusiness = await businessService.createdBusiness(req)
         res.status(201).json({message: 'success', data: createdBusiness})
     }catch (error) {
-        console.log('error', error)
         res.status(404).json({message: error})
     }
 }

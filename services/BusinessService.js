@@ -2,7 +2,7 @@ const businessModel = require("../models/business");
 
 paginate = async (req) => {
     const paginate = {}
-    const perPage = parseInt(req.query.per_page) || 2
+    const perPage = parseInt(req.query.per_page) || 20
     const page = parseInt(req.query.page) || 1
     const offset = perPage*page - perPage;
     const businessQuery = businessModel.find().skip(offset).limit(perPage)
@@ -13,8 +13,12 @@ paginate = async (req) => {
     }
     if(req.query.active){
         businessQuery.where('active', req.query.active) 
-        totalBusinessQuery.where('active', req.query.active)    
+        totalBusinessQuery.where('active', req.query.active)
     }
+
+    businessQuery.populate({
+        path: 'user'
+    })
 
     const [business, totalBusiness] = await Promise.all([businessQuery.exec(), totalBusinessQuery.exec()])
 
@@ -25,17 +29,29 @@ paginate = async (req) => {
 }
 
 createdBusiness = async (req) => {
-    return businessModel.create({
+    const createdBusiness = await businessModel.create({
         name: req.body.name,
-        active: req.body.active
+        active: req.body.active,
+        user: req.body.user_id
+    })
+    return createdBusiness.populate({
+        path: 'user',
+        populate: {
+            path: 'business'
+        }
+    }).execPopulate()
+}
+
+findBusinessById = async (id) => {
+    return businessModel.findById(id).populate({
+        path: 'user',
+        populate: {
+            path: 'business'
+        }
     })
 }
 
-findBusinessById = (id) => {
-    return businessModel.findById(id)
-}
-
-updatedBusiness = (business) => {
+updatedBusiness = async (business) => {
     return business.save()
 }
 

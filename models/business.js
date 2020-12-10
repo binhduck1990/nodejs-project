@@ -10,6 +10,10 @@ const businessSchema = new Schema({
     },
     active: {
       type: Boolean
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user'
     }
   }, {
     collection: 'business',

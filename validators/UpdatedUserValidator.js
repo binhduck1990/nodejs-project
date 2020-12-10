@@ -34,7 +34,7 @@ validate = async(req) => {
         user.age = req.body.age ? parseInt(req.body.age) : req.body.age
     }
     if('active' in req.body){
-        user.active = req.body.active
+        user.active = Boolean(req.body.active)
     }
     const err = user.validateSync()
     if(!!err){

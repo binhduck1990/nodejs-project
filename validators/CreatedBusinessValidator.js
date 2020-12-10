@@ -4,7 +4,8 @@ validate = async (req) => {
     const listError = {}
     const business = new businessModel({
         name: req.body.name,
-        active: req.body.active
+        active: req.body.active,
+        user: req.body.user_id
     })
 
     const findBusiness = await businessModel.findOne({name: req.body.name})

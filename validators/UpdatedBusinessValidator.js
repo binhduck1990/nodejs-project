@@ -12,7 +12,7 @@ validate = async(req) => {
         business.name = req.body.name
     }
     if('active' in req.body){
-        business.active = req.body.active
+        business.active = Boolean(req.body.active)
     }
     const err = business.validateSync()
     if(!!err){

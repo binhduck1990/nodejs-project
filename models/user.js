@@ -39,7 +39,8 @@ const userSchema = new Schema({
     },
     active: {
       type: Boolean
-    }
+    },
+    business: [{ type: Schema.Types.ObjectId, ref: 'business' }]
   }, {
     collection: 'user',
   }); 
