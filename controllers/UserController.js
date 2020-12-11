@@ -24,7 +24,7 @@ login = async (req, res) => {
             if(!comparePassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            const token = jwt.sign({ id: user._id,  }, process.env.SECRET_KEY)
+            const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {expiresIn: "2 days"})
             return res.status(200).json({
                 message: 'login success',
                 data: token
@@ -33,6 +33,19 @@ login = async (req, res) => {
         return res.status(400).json({message: 'wrong email or password'})   
     } catch (error) {
         res.status(404).json({message: error});
+    }
+}
+
+decode = (req, res) => {
+    try {
+        const token = req.body.token
+        const decode = jwt.verify(token, process.env.SECRET_KEY)
+        res.status(200).json({
+            message: 'success',
+            data: decode
+        })
+    } catch (error) {
+        
     }
 }
 
@@ -100,5 +113,6 @@ module.exports = {
     show,
     destroy,
     create,
-    update
+    update,
+    decode
 }

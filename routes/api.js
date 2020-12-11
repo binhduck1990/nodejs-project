@@ -4,6 +4,11 @@ const UserController = require('../controllers/UserController')
 const BusinessController = require('../controllers/BusinessController')
 
 Router.post('/user/login', UserController.login)
+Router.post('/user/decode', UserController.decode)
+Router.use((req, res, next) => {
+    console.log('333444')
+    next()
+})
 Router.get('/user', UserController.paginate)
 Router.get('/user/:id', UserController.show)
 Router.delete('/user/:id', UserController.destroy)
