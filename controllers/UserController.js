@@ -3,6 +3,7 @@ const userService = require('../services/UserService')
 const createdUserValidator = require('../validators/CreatedUserValidator')
 const updatedUserValidator = require('../validators/UpdatedUserValidator')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
 
 // users paginate
 paginate = async (req, res) => {
@@ -23,11 +24,14 @@ login = async (req, res) => {
             if(!comparePassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            return res.status(200).json({message: 'success'})  
+            const token = jwt.sign({ id: user._id,  }, process.env.SECRET_KEY)
+            return res.status(200).json({
+                message: 'login success',
+                data: token
+            })  
         }
         return res.status(400).json({message: 'wrong email or password'})   
     } catch (error) {
-        console.log('error', error)
         res.status(404).json({message: error});
     }
 }
