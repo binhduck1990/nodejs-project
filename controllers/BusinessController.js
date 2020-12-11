@@ -9,7 +9,7 @@ paginate = async (req, res) => {
         const paginate = await businessService.paginate(req)
         res.status(200).json({message: 'success', data: paginate.business, total: paginate.total})
     } catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -23,7 +23,7 @@ create = async (req, res) => {
         const createdBusiness = await businessService.createdBusiness(req)
         res.status(201).json({message: 'success', data: createdBusiness})
     }catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -37,7 +37,7 @@ show = async (req, res) => {
         }
         res.status(200).json({message: 'success', data: business})
     } catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -54,7 +54,7 @@ update = async (req, res) => {
         if (error.kind === "ObjectId") {
             res.status(404).json({message: 'business not found'});
         }else{
-            res.status(404).json(error)
+            res.status(404).json(error.message)
         }
     }
 }

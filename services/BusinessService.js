@@ -16,14 +16,14 @@ paginate = async (req) => {
         totalBusinessQuery.where('active', req.query.active)
     }
 
-    businessQuery.populate({
+    const business = businessQuery.populate({
         path: 'user'
-    })
+    }).exec()
 
-    const [business, totalBusiness] = await Promise.all([businessQuery.exec(), totalBusinessQuery.exec()])
+    const totalBusiness = totalBusinessQuery.exec()
 
-    paginate.business = business
-    paginate.total = totalBusiness
+    paginate.business = await business
+    paginate.total = await totalBusiness
     
     return paginate
 }

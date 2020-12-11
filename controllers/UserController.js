@@ -11,7 +11,7 @@ paginate = async (req, res) => {
         const paginate = await userService.paginate(req)
         res.status(200).json({message: 'success', data: paginate.users, total: paginate.total})
     } catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -32,20 +32,7 @@ login = async (req, res) => {
         }
         return res.status(400).json({message: 'wrong email or password'})   
     } catch (error) {
-        res.status(404).json({message: error});
-    }
-}
-
-decode = (req, res) => {
-    try {
-        const token = req.body.token
-        const decode = jwt.verify(token, process.env.SECRET_KEY)
-        res.status(200).json({
-            message: 'success',
-            data: decode
-        })
-    } catch (error) {
-        
+        res.status(404).json({message: error.message});
     }
 }
 
@@ -58,7 +45,7 @@ show = async (req, res) => {
         }
         res.status(200).json({message: 'success', data: user})
     } catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -71,7 +58,7 @@ destroy = async (req, res) => {
         }
         res.status(200).json({message: 'success', data: removedUser})
     } catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -85,7 +72,7 @@ create = async (req, res) => {
         const createdUser = await userService.createdUser(req)
         res.status(201).json({message: 'success', data: createdUser})
     }catch (error) {
-        res.status(404).json({message: error})
+        res.status(404).json({message: error.message})
     }
 }
 
@@ -102,7 +89,7 @@ update = async (req, res) => {
         if (error.kind === "ObjectId") {
             res.status(404).json({message: 'user not found'});
         }else{
-            res.status(404).json(error)
+            res.status(404).json(error.message)
         }
     }
 }
@@ -113,6 +100,5 @@ module.exports = {
     show,
     destroy,
     create,
-    update,
-    decode
+    update
 }

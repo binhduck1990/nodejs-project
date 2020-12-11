@@ -11,6 +11,7 @@ const businessSchema = new Schema({
     active: {
       type: Boolean
     },
+    // a business belong to one user
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user'

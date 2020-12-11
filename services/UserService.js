@@ -33,10 +33,11 @@ paginate = async (req) => {
         path: 'business'
     })
 
-    const [users, totalUsers] = await Promise.all([userQuery.exec(), totalUserQuery.exec()])
+    const users = userQuery.exec()
+    const totalUsers = totalUserQuery.exec()
 
-    paginate.users = users
-    paginate.total = totalUsers
+    paginate.users = await users
+    paginate.total = await totalUsers
     
     return paginate
 }

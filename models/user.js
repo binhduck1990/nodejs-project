@@ -40,6 +40,7 @@ const userSchema = new Schema({
     active: {
       type: Boolean
     },
+    // one user has many business
     business: [{ type: Schema.Types.ObjectId, ref: 'business' }]
   }, {
     collection: 'user',
