@@ -29,7 +29,6 @@ create = async (req, res) => {
 
 // detail business
 show = async (req, res) => {
-    console.log(binh)
     try {
         const business = await businessService.findBusinessById(req.params.id)
         if(!business){
