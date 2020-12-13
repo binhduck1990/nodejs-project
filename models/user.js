@@ -22,23 +22,28 @@ const userSchema = new Schema({
             return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
         },
         message: "Please enter a valid email"
-      }
+      },
+      default: ''
     },
     address: {
       type: String,
-      maxlength: 255
+      maxlength: 255,
+      default: ''
     },
     age: {
       type: Number,
       min: 1,
-      max: 100
+      max: 100,
+      default: null
     },
     phone: {
       type: String,
-      maxlength: 50
+      maxlength: 50,
+      default: ''
     },
     active: {
-      type: Boolean
+      type: Boolean,
+      default: true
     },
     // one user has many business
     business: [{ type: Schema.Types.ObjectId, ref: 'business' }]

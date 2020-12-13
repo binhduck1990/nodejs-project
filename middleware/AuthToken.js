@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
 
 checkToken = async (req, res, next) => {
-    if(!req.headers.authorization){
-        return res.status(401).json({
-            message: 'no token provide through header'
-        })
-    }
     try {
+        if(!req.headers.authorization){
+            return res.status(401).json({
+                message: 'no token provide through header'
+            })
+        }
         const token = req.headers.authorization.trim().split(" ")[1]
         const decodeToken = jwt.verify(token, process.env.SECRET_KEY)
         if (Date.now() >= decodeToken.exp * 1000) {
