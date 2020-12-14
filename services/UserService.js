@@ -1,8 +1,13 @@
 const userModel = require("../models/user");
 const bcrypt = require('bcrypt');
 
-findUserById = async (id) => {
-    return userModel.findById(id).populate('business')
+findUserById = async (req) => {
+    const user = userModel.findById(req.params.id)
+    const loadBusiness = req.query.load_business
+    if(loadBusiness === 'true'){
+        user.populate('business')
+    }
+    return user.exec()
 }
 
 findOneUser = async (req) => {
@@ -11,11 +16,16 @@ findOneUser = async (req) => {
 
 paginate = async (req) => {
     const paginate = {}
+
     const perPage = parseInt(req.query.per_page) || 20
     const page = parseInt(req.query.page) || 1
     const offset = perPage*page - perPage;
+
     const userQuery = userModel.find().skip(offset).limit(perPage)
     const totalUserQuery = userModel.countDocuments()
+
+    const loadBusiness = req.query.load_user
+
     if(req.query.username){
         userQuery.where('username', new RegExp(req.query.username, "i"))
         totalUserQuery.where('username', new RegExp(req.query.username, "i"))
@@ -29,9 +39,11 @@ paginate = async (req) => {
         totalUserQuery.where('username', new RegExp(req.query.username, "i"))
     }
 
-    userQuery.populate({
-        path: 'business'
-    })
+    if(loadBusiness === 'true'){
+        userQuery.populate({
+            path: 'business'
+        })
+    }
 
     const users = userQuery.exec()
     const totalUsers = totalUserQuery.exec()

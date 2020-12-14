@@ -39,7 +39,7 @@ login = async (req, res) => {
 // get user detail
 show = async (req, res) => {
     try {
-        const user = await userService.findUserById(req.params.id)
+        const user = await userService.findUserById(req)
         if(!user){
             return res.status(400).json({message: 'user not found'})
         }
@@ -86,11 +86,7 @@ update = async (req, res) => {
         const updatedUser = await userService.updatedUser(validatedData)
         res.status(200).json({message: 'success', data: updatedUser})
     }catch (error) {
-        if (error.kind === "ObjectId") {
-            res.status(404).json({message: 'user not found'});
-        }else{
-            res.status(404).json(error.message)
-        }
+        res.status(404).json(error.message)
     }
 }
 

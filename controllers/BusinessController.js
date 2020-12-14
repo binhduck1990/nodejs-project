@@ -16,12 +16,26 @@ paginate = async (req, res) => {
 // create business
 create = async (req, res) => {
     try {
-        const validatedData = await createdBusinessValidator.validate(req)
-        if(Object.getOwnPropertyNames(validatedData).length !== 0){
-            return res.status(400).json({message: validatedData})
+        const validator = await createdBusinessValidator.validate(req)
+        if(validator.isError){
+            return res.status(400).json({message: validator.listError})
         }
-        const createdBusiness = await businessService.createdBusiness(req)
+        const createdBusiness = await businessService.createdBusiness(validator.business)
         res.status(201).json({message: 'success', data: createdBusiness})
+    }catch (error) {
+        res.status(404).json({message: error.message})
+    }
+}
+
+// update business
+update = async (req, res) => {
+    try{
+        const validator = await updatedBusinessValidator.validate(req)
+        if(validator.isError){
+            return res.status(400).json({message: validator.listError})
+        }
+        const updatedBusiness = await businessService.updatedBusiness(validator.business)
+        res.status(200).json({message: 'success', data: updatedBusiness})
     }catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -30,31 +44,13 @@ create = async (req, res) => {
 // detail business
 show = async (req, res) => {
     try {
-        const business = await businessService.findBusinessById(req.params.id)
+        const business = await businessService.findBusinessById(req)
         if(!business){
             return res.status(400).json({message: 'business not found'})
         }
         res.status(200).json({message: 'success', data: business})
     } catch (error) {
         res.status(404).json({message: error.message})
-    }
-}
-
-// update business
-update = async (req, res) => {
-    try{
-        const validatedData = await updatedBusinessValidator.validate(req)
-        if(!(validatedData instanceof business)){
-            return res.status(400).json({message: validatedData})
-        }
-        const updatedBusiness = await businessService.updatedBusiness(validatedData)
-        res.status(200).json({message: 'success', data: updatedBusiness})
-    }catch (error) {
-        if (error.kind === "ObjectId") {
-            res.status(404).json({message: 'business not found'});
-        }else{
-            res.status(404).json(error.message)
-        }
     }
 }
 
