@@ -15,17 +15,27 @@ findOneUser = async (req) => {
     return userModel.findOne({ email: req.body.email})
 }
 
-getRelation = async (users, idsUser) => {
-    const business = await businessModel.find().where('user').in(idsUser).exec()
+getRelation = async (users, relation) => {
+    const idsUser = []
+    users.forEach(user => {
+        idsUser.push(user._id)
+    });
+
+    if(relation.includes('business')){
+        var business = await businessModel.find().where('user').in(idsUser).exec()
+    }
+    
     return users.map(user => {
-        const listBusiness = []
-        for (let i = business.length - 1; i >= 0; i--) {
-            if(user._id.equals(business[i].user)){
-                listBusiness.push(business[i])
-                business.splice(i, 1)
+        if(relation.includes('business')){
+            const listBusiness = []
+            for (let i = business.length - 1; i >= 0; i--) {
+                if(user._id.equals(business[i].user)){
+                    listBusiness.push(business[i])
+                    business.splice(i, 1)
+                }
             }
+            user.business = listBusiness
         }
-        user.business = listBusiness
     }); 
 }
 
@@ -60,13 +70,13 @@ paginate = async (req) => {
     const users = await usersProgess
     const total = await totalProgess
 
-    const idsUser = []
-    users.forEach(user => {
-        idsUser.push(user._id)
-    });
+    const relation = []
+    if(loadBusiness === 'true'){
+        relation.push('business')
+    }
 
-    if(loadBusiness === 'true' && idsUser.length){
-        await getRelation(users, idsUser)  
+    if(relation.length){
+        await getRelation(users, relation)  
     }
 
     paginate.users = users
