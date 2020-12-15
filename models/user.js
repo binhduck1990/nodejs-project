@@ -45,8 +45,7 @@ const userSchema = new Schema({
       type: Boolean,
       default: true
     },
-    // one user has many business
-    business: [{ type: Schema.Types.ObjectId, ref: 'business' }]
+    business: [{}]
   }, {
     collection: 'user',
   }); 

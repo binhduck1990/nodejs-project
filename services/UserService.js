@@ -1,4 +1,5 @@
-const userModel = require("../models/user");
+const userModel = require('../models/user');
+const businessModel = require('../models/business')
 const bcrypt = require('bcrypt');
 
 findUserById = async (req) => {
@@ -14,6 +15,20 @@ findOneUser = async (req) => {
     return userModel.findOne({ email: req.body.email})
 }
 
+getRelation = async (users, idsUser) => {
+    const business = await businessModel.find().where('user').in(idsUser).exec()
+    return users.map(user => {
+        const listBusiness = []
+        for (let i = business.length - 1; i >= 0; i--) {
+            if(user._id.equals(business[i].user)){
+                listBusiness.push(business[i])
+                business.splice(i, 1)
+            }
+        }
+        user.business = listBusiness
+    }); 
+}
+
 paginate = async (req) => {
     const paginate = {}
 
@@ -24,7 +39,7 @@ paginate = async (req) => {
     const userQuery = userModel.find().skip(offset).limit(perPage)
     const totalUserQuery = userModel.countDocuments()
 
-    const loadBusiness = req.query.load_user
+    const loadBusiness = req.query.load_business
 
     if(req.query.username){
         userQuery.where('username', new RegExp(req.query.username, "i"))
@@ -39,17 +54,23 @@ paginate = async (req) => {
         totalUserQuery.where('username', new RegExp(req.query.username, "i"))
     }
 
-    if(loadBusiness === 'true'){
-        userQuery.populate({
-            path: 'business'
-        })
+    const usersProgess = userQuery.exec()
+    const totalProgess = totalUserQuery.exec()
+
+    const users = await usersProgess
+    const total = await totalProgess
+
+    const idsUser = []
+    users.forEach(user => {
+        idsUser.push(user._id)
+    });
+
+    if(loadBusiness === 'true' && idsUser.length){
+        await getRelation(users, idsUser)  
     }
 
-    const users = userQuery.exec()
-    const totalUsers = totalUserQuery.exec()
-
-    paginate.users = await users
-    paginate.total = await totalUsers
+    paginate.users = users
+    paginate.total = total
     
     return paginate
 }
