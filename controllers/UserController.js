@@ -24,13 +24,41 @@ login = async (req, res) => {
             if(!comparePassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {expiresIn: "2 days"})
+            const token = jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"})
+            const refreshToken = jwt.sign({ id: user._id, type: 'refresh_token' }, process.env.SECRET_KEY, {expiresIn: "30 days"})
+            user.refresh_token =  refreshToken
+            await user.save()
             return res.status(200).json({
                 message: 'login success',
-                data: token
+                token: token,
+                refreshToken: refreshToken
             })  
         }
         return res.status(400).json({message: 'wrong email or password'})   
+    } catch (error) {
+        res.status(404).json({message: error.message});
+    }
+}
+
+refreshToken = async (req, res) => {
+    try {
+        const user = await userService.getUserByRefreshToken(req)
+        if(!user){
+            return res.status(400).json({message: 'refresh_token invalid'})
+        }else{
+            const refreshToken = user.refresh_token
+            const decodeToken = jwt.verify(refreshToken, process.env.SECRET_KEY)
+            if (Date.now() >= decodeToken.exp * 1000) {
+                return res.status(401).json({
+                    message: 'refresh token expried'
+                })
+              }
+        }
+        const token = jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"})
+        return res.status(200).json({
+            message: 'refresh token success',
+            token: token,
+        }) 
     } catch (error) {
         res.status(404).json({message: error.message});
     }
@@ -96,5 +124,6 @@ module.exports = {
     show,
     destroy,
     create,
-    update
+    update,
+    refreshToken
 }

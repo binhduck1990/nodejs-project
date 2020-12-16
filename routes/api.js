@@ -6,6 +6,7 @@ const AuthToken = require('../middleware/AuthToken')
 
 Router.post('/user/login', UserController.login)
 Router.post('/user/', UserController.create)
+Router.post('/user/refresh-token/', UserController.refreshToken)
 Router.use(AuthToken.checkToken)
 
 Router.get('/user', UserController.paginate)

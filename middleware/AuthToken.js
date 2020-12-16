@@ -10,6 +10,12 @@ checkToken = async (req, res, next) => {
         }
         const token = req.headers.authorization.trim().split(" ")[1]
         const decodeToken = jwt.verify(token, process.env.SECRET_KEY)
+    
+        if(decodeToken.type !== 'token'){
+            return res.status(401).json({
+                message: 'token invalid'
+            })
+        }
         if (Date.now() >= decodeToken.exp * 1000) {
             return res.status(401).json({
                 message: 'token expried'

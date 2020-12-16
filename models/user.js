@@ -45,6 +45,10 @@ const userSchema = new Schema({
       type: Boolean,
       default: true
     },
+    refresh_token: {
+      type: String,
+      default: ''
+    },
     business: [{}]
   }, {
     collection: 'user',
