@@ -39,10 +39,10 @@ checkToken = async (req, res, next) => {
                     })
                 }
                 const decodeRefreshToken = await jwt.verify(refreshToken, process.env.SECRET_KEY)
-                const user = await userModel.findById(decodeRefreshToken.id)
+                const user = await userModel.findOne({_id: decodeRefreshToken.id, refresh_token: refreshToken})
                 if(!user){
                     return res.status(401).json({
-                        message: 'user not found'
+                        message: 'refresh_token not found'
                     })
                 }
                 const tokenRun = new Promise((resolve, reject) => {
