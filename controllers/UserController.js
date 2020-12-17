@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 paginate = async (req, res) => {
     try {
         const paginate = await userService.paginate(req)
-        res.status(200).json({message: 'success', data: paginate.users, total: paginate.total})
+        res.status(200).json({message: 'success', data: paginate.users, total: paginate.total, token:res.token, refreshToken:res.refresh_token})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -24,10 +24,28 @@ login = async (req, res) => {
             if(!comparePassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            const token = jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"})
-            const refreshToken = jwt.sign({ id: user._id, type: 'refresh_token' }, process.env.SECRET_KEY, {expiresIn: "30 days"})
+            const tokenRun = new Promise((resolve, reject) => {
+                jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "100"}, function(err, token){
+                    if(!err){
+                        resolve(token)
+                    }
+                    reject(err)
+                })
+            })
+            const refreshTokenRun = new Promise((resolve, reject) => {
+                jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
+                    if(!err){
+                        resolve(token)
+                    }
+                    reject(err)
+                })
+            })
+
+            const [token, refreshToken] = await Promise.all([tokenRun, refreshTokenRun])
+          
             user.refresh_token =  refreshToken
             await user.save()
+
             return res.status(200).json({
                 message: 'login success',
                 token: token,
@@ -36,6 +54,7 @@ login = async (req, res) => {
         }
         return res.status(400).json({message: 'wrong email or password'})   
     } catch (error) {
+        console.log('error', error)
         res.status(404).json({message: error.message});
     }
 }

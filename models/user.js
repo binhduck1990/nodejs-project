@@ -49,7 +49,10 @@ const userSchema = new Schema({
       type: String,
       default: ''
     },
-    business: [{}]
+    business: [{
+      type: Schema.Types.ObjectId,
+      ref: 'business'
+    }]
   }, {
     collection: 'user',
   }); 

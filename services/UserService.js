@@ -108,16 +108,11 @@ updatedUser = async (user) => {
     return user.save()
 }
 
-getUserByRefreshToken = async (req) => {
-    return userModel.findOne({refresh_token: req.body.refresh_token})
-}
-
 module.exports = {
     paginate,
     findUserById,
     findOneUser,
     findUserByIdAndRemove,
     createdUser,
-    updatedUser,
-    getUserByRefreshToken
+    updatedUser
 }
