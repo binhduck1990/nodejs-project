@@ -1,10 +1,12 @@
 require('./config/dbConnect')
+require('./config/redisConnect')
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors')
+global.tokenDelete = []
 
 var Router = require('./routes/api');
 

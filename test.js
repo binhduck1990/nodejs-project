@@ -3,6 +3,7 @@ act = async () => {
         var p1 = promise1()
         var p2 = promise2()
         var p1done = await p1
+        console.log(p1done)
         var p2done = await p2
     } catch (error) {
         console.log('err', error)
@@ -17,7 +18,7 @@ promise1 = async () => {
 
 promise2 = async () => {
     return new Promise((resolve, reject) => {
-        reject('456')
+        resolve('456')
       })
 }
 

@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
+const redis = require("redis");
+const client = redis.createClient({ detect_buffers: true });
 
 checkToken = async (req, res, next) => {
-    console.log('fuck', req.headers.authorization)
     try {
         if(!req.headers.authorization){
             return res.status(401).json({
@@ -16,15 +17,30 @@ checkToken = async (req, res, next) => {
                 message: 'invalid token'
             })
         }
-
         const user = await userModel.findById(decodeToken.id)
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
             })
         }
-        console.log(111)
-        next()
+        client.lrange("tokenDelete1", 0, -1, function(get_token_err, value){
+            try {
+                if(get_token_err){
+                    throw get_token_err
+                }
+                const listTokenDelete = value
+                if(listTokenDelete.includes(token)){
+                    return res.status(200).json({
+                        message: 'token has been deleted'
+                    })
+                }
+            } catch (get_token_err) {
+                return res.status(401).json({
+                    message: get_token_err.message
+                })
+            }
+            next()
+        })
     } catch (error) {
         if(error.message === 'invalid token'){
             return res.status(401).json({
@@ -68,9 +84,9 @@ checkToken = async (req, res, next) => {
                 res.token = newToken
                 res.refresh_token = newRefreshToken
                 next()
-            } catch (e) {
+            } catch (refresh_token_error) {
                 return res.status(404).json({
-                    message: e.message
+                    message: refresh_token_error.message
                 })
             }
         }else{
