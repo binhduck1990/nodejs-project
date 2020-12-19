@@ -10,6 +10,7 @@ const client = redis.createClient({ detect_buffers: true });
 // users paginate
 paginate = async (req, res) => {
     try {
+        //throw 'abc'
         const paginate = await userService.paginate(req)
         res.status(200).json({message: 'success', data: paginate.users, total: paginate.total, token:res.token, refreshToken:res.refresh_token})
     } catch (error) {

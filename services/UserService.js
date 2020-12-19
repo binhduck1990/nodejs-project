@@ -15,18 +15,18 @@ findOneUser = async (req) => {
     return userModel.findOne({ email: req.body.email})
 }
 
-getRelation = async (users, relation) => {
+getRelations = async (users, relations) => {
     const idsUser = []
     users.forEach(user => {
         idsUser.push(user._id)
     });
 
-    if(relation.includes('business')){
+    if(relations.includes('business')){
         var business = await businessModel.find().where('user').in(idsUser).exec()
     }
     
     return users.map(user => {
-        if(relation.includes('business')){
+        if(relations.includes('business')){
             const listBusiness = []
             for (let i = business.length - 1; i >= 0; i--) {
                 if(user._id.equals(business[i].user)){
@@ -70,13 +70,13 @@ paginate = async (req) => {
     const users = await usersProgess
     const total = await totalProgess
 
-    const relation = []
+    const relations = []
     if(loadBusiness === 'true'){
-        relation.push('business')
+        relations.push('business')
     }
 
-    if(relation.length){
-        await getRelation(users, relation)  
+    if(users.length && relations.length){
+        await getRelations(users, relations)  
     }
 
     paginate.users = users
