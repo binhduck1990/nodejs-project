@@ -1,4 +1,3 @@
-const business = require('../models/business')
 const userModel = require('../models/user')
 
 validate = async (req) => {

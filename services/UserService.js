@@ -3,12 +3,16 @@ const businessModel = require('../models/business')
 const bcrypt = require('bcrypt');
 
 findUserById = async (req) => {
-    const user = userModel.findById(req.params.id)
+    const user = await userModel.findById(req.params.id)
+    if(!user){
+        return false
+    }
     const loadBusiness = req.query.load_business
     if(loadBusiness === 'true'){
-        user.populate('business')
+        const business = await businessModel.find({user: user._id})
+        user.business = business
     }
-    return user.exec()
+    return user
 }
 
 findOneUser = async (req) => {
@@ -22,7 +26,7 @@ getRelations = async (users, relations) => {
     });
 
     if(relations.includes('business')){
-        var business = await businessModel.find().where('user').in(idsUser).exec()
+        var business = await businessModel.find().where('user').in(idsUser)
     }
     
     return users.map(user => {
@@ -101,7 +105,7 @@ createdUser = async (req) => {
         active: req.body.active,
         business: req.body.business_id
     })
-    return createdUser.populate('business').execPopulate()
+    return createdUser
 }
 
 updatedUser = async (user) => {
