@@ -7,18 +7,6 @@ const jwt = require('jsonwebtoken');
 const redis = require("redis");
 const client = redis.createClient({ detect_buffers: true });
 
-// users paginate
-paginate = async (req, res) => {
-    try {
-        //throw 'abc'
-        const paginate = await userService.paginate(req)
-        res.status(200).json({message: 'success', data: paginate.users, total: paginate.total, token:res.token, refreshToken:res.refresh_token})
-    } catch (error) {
-        res.status(404).json({message: error.message})
-    }
-}
-
-// login
 login = async (req, res) => {
     try {
         const user = await userService.findOneUser(req)
@@ -114,6 +102,16 @@ logout = async (req, res) => {
     }  
 }
 
+// users paginate
+paginate = async (req, res) => {
+    try {
+        const paginate = await userService.paginate(req)
+        res.status(200).json({message: 'success', data: paginate.users, total: paginate.total, token:res.token, refresh_token:res.refresh_token})
+    } catch (error) {
+        res.status(404).json({message: error.message})
+    }
+}
+
 // get user detail
 show = async (req, res) => {
     try {
@@ -121,7 +119,7 @@ show = async (req, res) => {
         if(!user){
             return res.status(400).json({message: 'user not found'})
         }
-        res.status(200).json({message: 'success', data: user})
+        res.status(200).json({message: 'success', data: user, token:res.token, refresh_token:res.refresh_token})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -134,7 +132,7 @@ destroy = async (req, res) => {
         if(!removedUser){
             return res.status(400).json({message: 'user not found'})
         }
-        res.status(200).json({message: 'success', data: removedUser})
+        res.status(200).json({message: 'success', data: removedUser, token:res.token, refresh_token:res.refresh_token})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -148,7 +146,7 @@ create = async (req, res) => {
             return res.status(400).json({message: validatedData})
         }
         const createdUser = await userService.createdUser(req)
-        res.status(201).json({message: 'success', data: createdUser})
+        res.status(201).json({message: 'success', data: createdUser, token:res.token, refresh_token:res.refresh_token})
     }catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -162,18 +160,18 @@ update = async (req, res) => {
             return res.status(400).json({message: validatedData})
         }
         const updatedUser = await userService.updatedUser(validatedData)
-        res.status(200).json({message: 'success', data: updatedUser})
+        res.status(200).json({message: 'success', data: updatedUser, token:res.token, refresh_token:res.refresh_token})
     }catch (error) {
         res.status(404).json(error.message)
     }
 }
 
 module.exports = {
-    paginate,
     login,
+    logout,
+    paginate,
     show,
     destroy,
     create,
-    update,
-    logout
+    update
 }

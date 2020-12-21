@@ -23,7 +23,7 @@ checkToken = async (req, res, next) => {
                 message: 'user not found'
             })
         }
-        client.lrange("tokenDelete1", 0, -1, function(get_token_err, value){
+        client.lrange("tokenDelete", 0, -1, function(get_token_err, value){
             try {
                 if(get_token_err){
                     throw get_token_err
@@ -46,7 +46,15 @@ checkToken = async (req, res, next) => {
             return res.status(401).json({
                 message: error.message
             })
-        }else if(error.message === 'jwt expired'){
+        }
+
+        if(error.message === 'invalid signature'){
+            return res.status(401).json({
+                message: 'invalid secret key'
+            })
+        }
+
+        if(error.message === 'jwt expired'){
             try {
                 const refreshToken = req.headers.authorization.trim().split(" ")[2]
                 if(!refreshToken){
@@ -62,7 +70,7 @@ checkToken = async (req, res, next) => {
                     })
                 }
                 const tokenRun = new Promise((resolve, reject) => {
-                    jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "100"}, function(err, token){
+                    jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"}, function(err, token){
                         if(!err){
                             resolve(token)
                         }
@@ -83,17 +91,17 @@ checkToken = async (req, res, next) => {
                 await user.save()
                 res.token = newToken
                 res.refresh_token = newRefreshToken
-                next()
+                return next()
             } catch (refresh_token_error) {
                 return res.status(404).json({
                     message: refresh_token_error.message
                 })
             }
-        }else{
-            res.status(404).json({
+        }
+            
+        res.status(404).json({
                 message: error.message
             })
-        }
     }
 }
 
