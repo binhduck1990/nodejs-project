@@ -4,43 +4,20 @@ const createdUserValidator = require('../validators/CreatedUserValidator')
 const updatedUserValidator = require('../validators/UpdatedUserValidator')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const redis = require("redis");
-const client = redis.createClient({ detect_buffers: true });
 
 login = async (req, res) => {
     try {
-        const user = await userService.findOneUser(req)
+        const user = await userService.findUserByEmail(req)
         if(user){
-            const comparePassword = await bcrypt.compare(req.body.password, user.password)
-            if(!comparePassword){
+            const comparedPassword = await bcrypt.compare(req.body.password, user.password)
+            if(!comparedPassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            const tokenRun = new Promise((resolve, reject) => {
-                jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"}, function(err, token){
-                    if(!err){
-                        resolve(token)
-                    }
-                    reject(err)
-                })
-            })
-            const refreshTokenRun = new Promise((resolve, reject) => {
-                jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
-                    if(!err){
-                        resolve(token)
-                    }
-                    reject(err)
-                })
-            })
-
-            const [token, refreshToken] = await Promise.all([tokenRun, refreshTokenRun])
-          
-            user.refresh_token =  refreshToken
-            await user.save()
-
+            const generatedToken = await userService.generateToken(user)
             return res.status(200).json({
                 message: 'login success',
-                token: token,
-                refreshToken: refreshToken
+                token: generatedToken.token,
+                refreshToken: generatedToken.refreshToken
             })  
         }
         return res.status(400).json({message: 'wrong email or password'})   
@@ -57,48 +34,33 @@ logout = async (req, res) => {
                 message: 'no token provide through header'
             })
         }
-        const decodeToken = await jwt.verify(token, process.env.SECRET_KEY)
-            if(decodeToken.type !== 'token'){
-                return res.status(401).json({
-                    message: 'invalid token'
-                })
-            }
-            const user = await userModel.findById(decodeToken.id)
-            if(!user){
-                return res.status(401).json({
-                    message: 'user not found'
-                })
-            }
-            client.lrange("tokenDelete", 0, -1, function(get_token_err, value){
-                try {
-                    if(get_token_err){
-                        throw get_token_err
-                    }
-                    const listTokenDelete = value;
-                    if(listTokenDelete.includes(token)){
-                        return res.status(200).json({
-                            message: 'token has been deleted'
-                        })
-                    }
-                    // global.tokenDelete.push(token)
-                    client.lpush("tokenDelete", token , function(set_token_err){
-                        try {
-                            if(set_token_err){
-                                throw set_token_err
-                            }
-                            res.status(200).json({
-                                message: 'delete token success'
-                            })
-                        } catch (set_token_err) {
-                            res.status(404).json({message: set_token_err.message});
-                        }
-                    })
-                } catch (get_token_err) {
-                    res.status(404).json({message: get_token_err.message});
-                }
-            }) 
+        const decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
+        if(decodedToken.type !== 'token'){
+            return res.status(401).json({
+                message: 'invalid token'
+            })
+        }
+        const user = await userModel.findById(decodedToken.id)
+        if(!user){
+            return res.status(401).json({
+                message: 'user not found'
+            })
+        }
+        // delete token by adding to redis black list
+        const tokens = await userService.getTokenFromRedis()
+        if(tokens.includes(token)){
+            return res.status(200).json({
+                message: 'token has been deleted'
+            })
+        }
+        const updatedToken = await userService.setTokenToRedis(token)
+        if(updatedToken){
+            res.status(200).json({
+                message: 'delete token success'
+            })
+        }     
     } catch (error) {
-        res.status(404).json({message: err.message});
+        res.status(404).json({message: error.message});
     }  
 }
 

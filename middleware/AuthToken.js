@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
-const redis = require("redis");
-const client = redis.createClient({ detect_buffers: true });
+const userService = require('../services/UserService')
 
 checkToken = async (req, res, next) => {
     try {
@@ -11,97 +10,80 @@ checkToken = async (req, res, next) => {
             })
         }
         const token = req.headers.authorization.trim().split(" ")[1]
-        const decodeToken = await jwt.verify(token, process.env.SECRET_KEY)
-        if(decodeToken.type !== 'token'){
+        const decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
+        if(decodedToken.type !== 'token'){
             return res.status(401).json({
                 message: 'invalid token'
             })
         }
-        const user = await userModel.findById(decodeToken.id)
+        const user = await userModel.findById(decodedToken.id)
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
             })
         }
-        client.lrange("tokenDelete", 0, -1, function(get_token_err, value){
-            try {
-                if(get_token_err){
-                    throw get_token_err
-                }
-                const listTokenDelete = value
-                if(listTokenDelete.includes(token)){
-                    return res.status(200).json({
-                        message: 'token has been deleted'
-                    })
-                }
-            } catch (get_token_err) {
-                return res.status(401).json({
-                    message: get_token_err.message
-                })
-            }
-            next()
-        })
+        const tokens = await userService.getTokenFromRedis()
+        if(tokens.includes(token)){
+            return res.status(401).json({
+                message: 'token expired'
+            })
+        }
+        next()
     } catch (error) {
         if(error.message === 'invalid token'){
             return res.status(401).json({
                 message: error.message
             })
         }
-
         if(error.message === 'invalid signature'){
             return res.status(401).json({
                 message: 'invalid secret key'
             })
         }
-
+        // auto refresh a new token if get refresh_token through header as the second parameter
         if(error.message === 'jwt expired'){
             try {
                 const refreshToken = req.headers.authorization.trim().split(" ")[2]
                 if(!refreshToken){
-                    res.status(404).json({
-                        message: 'jwt expired'
+                    res.status(401).json({
+                        message: 'token expired'
                     })
                 }
-                const decodeRefreshToken = await jwt.verify(refreshToken, process.env.SECRET_KEY)
-                const user = await userModel.findOne({_id: decodeRefreshToken.id, refresh_token: refreshToken})
+                const decodedRefreshToken = await jwt.verify(refreshToken, process.env.SECRET_KEY)
+                const user = await userModel.findOne({_id: decodedRefreshToken.id, refresh_token: refreshToken})
                 if(!user){
                     return res.status(401).json({
                         message: 'refresh_token not found'
                     })
                 }
-                const tokenRun = new Promise((resolve, reject) => {
-                    jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "2 days"}, function(err, token){
-                        if(!err){
-                            resolve(token)
-                        }
-                        reject(err)
-                    })
-                })
-                const refreshTokenRun = new Promise((resolve, reject) => {
-                    jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
-                        if(!err){
-                            resolve(token)
-                        }
-                        reject(err)
-                    })
-                })
-    
-                const [newToken, newRefreshToken] = await Promise.all([tokenRun, refreshTokenRun])
-                user.refresh_token = newRefreshToken
-                await user.save()
-                res.token = newToken
-                res.refresh_token = newRefreshToken
+                const generatedToken = await userService.generateToken(user)
+                res.token = generatedToken.token
+                res.refresh_token = generatedToken.refreshToken
                 return next()
-            } catch (refresh_token_error) {
+            } catch (errorWhenRefreshToken) {
+                if(errorWhenRefreshToken.message === 'invalid token'){
+                    return res.status(401).json({
+                        message: 'invalid refresh_token'
+                    })
+                }
+                if(errorWhenRefreshToken.message === 'invalid signature'){
+                    return res.status(401).json({
+                        message: 'refresh_token invalid secret key'
+                    })
+                }
+                if(errorWhenRefreshToken.message === 'jwt expired'){
+                    return res.status(401).json({
+                        message: 'refresh_token expired'
+                    })
+                }
                 return res.status(404).json({
-                    message: refresh_token_error.message
+                    message: error.message
                 })
             }
         }
-            
-        res.status(404).json({
-                message: error.message
-            })
+        return res.status(404).json({
+            message: error.message
+        })
     }
 }
 

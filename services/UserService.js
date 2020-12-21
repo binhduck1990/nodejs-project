@@ -1,11 +1,14 @@
 const userModel = require('../models/user');
 const businessModel = require('../models/business')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+const redis = require("redis");
+const client = redis.createClient({ detect_buffers: true });
 
 findUserById = async (req) => {
     const user = await userModel.findById(req.params.id)
     if(!user){
-        return false
+        return null
     }
     const loadBusiness = req.query.load_business
     if(loadBusiness === 'true'){
@@ -15,10 +18,11 @@ findUserById = async (req) => {
     return user
 }
 
-findOneUser = async (req) => {
+findUserByEmail = async (req) => {
     return userModel.findOne({ email: req.body.email})
 }
 
+// load relation of users model
 getRelations = async (users, relations) => {
     const idsUser = []
     users.forEach(user => {
@@ -112,11 +116,67 @@ updatedUser = async (user) => {
     return user.save()
 }
 
+// generate token, refesh_token and save refesh_token to user if login success
+generateToken = async (user) => {
+    const generatedToken = new Promise((resolve, reject) => {
+        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "10"}, function(err, token){
+            if(!err){
+                resolve(token)
+            }
+            reject(err)
+        })
+    })
+    const generatedRefeshToken = new Promise((resolve, reject) => {
+        jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
+            if(!err){
+                resolve(token)
+            }
+            reject(err)
+        })
+    })
+
+    const [token, refreshToken] = await Promise.all([generatedToken, generatedRefeshToken])
+  
+    user.refresh_token = refreshToken
+    await user.save()
+
+    return {
+        token, refreshToken
+    }
+}
+
+// get a black list array tokens in redis
+getTokenFromRedis = async () => {
+    return new Promise((resolve, reject) => {
+        client.lrange("tokenDelete", 0, -1, function(error, value){
+            if(!error){
+                resolve(value)
+            }
+            reject(error)
+        })
+    })
+}
+
+// add token want to delete to an exist array tokens in redis
+setTokenToRedis = async (token) => {
+    return new Promise((resolve, reject) => {
+        client.lpush("tokenDelete", token , function(error, value){
+            if(!error){
+                resolve(value)
+            }
+            reject(error)
+        })
+    })
+}
+
 module.exports = {
     paginate,
     findUserById,
-    findOneUser,
+    findUserByEmail,
     findUserByIdAndRemove,
     createdUser,
-    updatedUser
+    updatedUser,
+    generateToken,
+    getTokenFromRedis,
+    setTokenToRedis
 }
