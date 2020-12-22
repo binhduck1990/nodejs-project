@@ -10,8 +10,8 @@ checkToken = async (req, res, next) => {
             })
         }
 
-        const token = req.headers.authorization.trim().split(" ")[1]
-        const refreshToken = req.headers.authorization.trim().split(" ")[2]
+        const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token
+        const refreshToken = req.headers.authorization.trim().split(" ")[2] || req.body.refresh_token || req.query.refresh_token
 
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
