@@ -56,7 +56,7 @@ findBusinessById = async (req) => {
         })
     }
     
-    return business.exec()
+    return business
 }
 
 module.exports = {
