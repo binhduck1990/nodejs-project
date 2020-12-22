@@ -4,14 +4,13 @@ const userService = require('../services/UserService')
 
 checkToken = async (req, res, next) => {
     try {
-        if(!req.headers.authorization){
-            return res.status(401).json({
-                message: 'no token provide through header'
-            })
-        }
-
         const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token
         const refreshToken = req.headers.authorization.trim().split(" ")[2] || req.body.refresh_token || req.query.refresh_token
+        if(!token){
+            return res.status(401).json({
+                message: 'no token provided'
+            })
+        }
 
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)

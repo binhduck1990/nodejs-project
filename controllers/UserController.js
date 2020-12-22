@@ -35,7 +35,7 @@ logout = async (req, res) => {
         const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token
         if(!token){
             return res.status(401).json({
-                message: 'no token provide through header'
+                message: 'no token provided'
             })
         }
         
