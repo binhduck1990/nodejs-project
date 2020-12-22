@@ -13,7 +13,11 @@ login = async (req, res) => {
             if(!comparedPassword){
                 return res.status(400).json({message: 'wrong email or password'})
             }
-            const generatedToken = await userService.generateToken(user)
+            try {
+                var generatedToken = await userService.generateToken(user)
+            } catch (jwt_error) {
+                res.status(401).json({message: error.message});
+            }
             return res.status(200).json({
                 message: 'login success',
                 token: generatedToken.token,
@@ -34,28 +38,35 @@ logout = async (req, res) => {
                 message: 'no token provide through header'
             })
         }
-        const decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
-        if(decodedToken.type !== 'token'){
-            return res.status(401).json({
-                message: 'invalid token'
-            })
+        
+        try {
+            var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
+            if(decodedToken.type !== 'token'){
+                return res.status(401).json({
+                    message: 'invalid token'
+                })
+            }
+        } catch (jwt_error) {
+            res.status(401).json({message: jwt_error.message});
         }
+
         const user = await userModel.findById(decodedToken.id)
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
             })
         }
-        // delete token by adding to redis black list
+        
         const tokens = await userService.getTokenFromRedis()
         if(tokens.includes(token)){
             return res.status(200).json({
                 message: 'token has been deleted'
             })
         }
+
         const updatedToken = await userService.setTokenToRedis(token)
         if(updatedToken){
-            res.status(200).json({
+            return res.status(200).json({
                 message: 'delete token success'
             })
         }     
@@ -104,11 +115,11 @@ destroy = async (req, res) => {
 create = async (req, res) => {
     try {
         const validatedData = await createdUserValidator.validate(req)
-        if(Object.getOwnPropertyNames(validatedData).length !== 0){
-            return res.status(400).json({message: validatedData})
+        if(validatedData.isError){
+            return res.status(400).json({message: validatedData.listError})
         }
-        const createdUser = await userService.createdUser(req)
-        res.status(201).json({message: 'success', data: createdUser, token:res.token, refresh_token:res.refresh_token})
+        const createdUser = await userService.createdUser(validatedData.user)
+        res.status(200).json({message: 'success', data: createdUser, token:res.token, refresh_token:res.refresh_token})
     }catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -118,10 +129,10 @@ create = async (req, res) => {
 update = async (req, res) => {
     try{
         const validatedData = await updatedUserValidator.validate(req)
-        if(!(validatedData instanceof userModel)){
-            return res.status(400).json({message: validatedData})
+        if(validatedData.isError){
+            return res.status(400).json({message: validatedData.listError})
         }
-        const updatedUser = await userService.updatedUser(validatedData)
+        const updatedUser = await userService.updatedUser(validatedData.user)
         res.status(200).json({message: 'success', data: updatedUser, token:res.token, refresh_token:res.refresh_token})
     }catch (error) {
         res.status(404).json(error.message)

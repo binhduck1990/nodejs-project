@@ -6,7 +6,7 @@ const redis = require("redis");
 const client = redis.createClient({ detect_buffers: true });
 
 findUserById = async (req) => {
-    const user = await userModel.findById(req.params.id)
+    const user = await userModel.findById(req.params.id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
     if(!user){
         return null
     }
@@ -19,7 +19,7 @@ findUserById = async (req) => {
 }
 
 findUserByEmail = async (req) => {
-    return userModel.findOne({ email: req.body.email})
+    return userModel.findOne({email: req.body.email})
 }
 
 // load relation of users model
@@ -54,7 +54,10 @@ paginate = async (req) => {
     const page = parseInt(req.query.page) || 1
     const offset = perPage*page - perPage;
 
-    const userQuery = userModel.find().skip(offset).limit(perPage)
+    const sortField = req.query.sort_field || 'createdAt'
+    const sortBy = req.query.sort_by && req.query.sort_by.toLowerCase() == 'asc' ? 'asc' : 'desc'
+
+    const userQuery = userModel.find().select({'password' : 0, 'refresh_token' : 0, '__v' : 0}).sort({[sortField]: sortBy}).skip(offset).limit(perPage)
     const totalUserQuery = userModel.countDocuments()
 
     const loadBusiness = req.query.load_business
@@ -78,13 +81,14 @@ paginate = async (req) => {
     const users = await usersProgess
     const total = await totalProgess
 
-    const relations = []
-    if(loadBusiness === 'true'){
-        relations.push('business')
-    }
-
-    if(users.length && relations.length){
-        await getRelations(users, relations)  
+    if(users.length){
+        const relations = []
+        if(loadBusiness === 'true'){
+            relations.push('business')
+        }
+        if(relations.length){
+            await getRelations(users, relations)  
+        } 
     }
 
     paginate.users = users
@@ -94,32 +98,25 @@ paginate = async (req) => {
 }
 
 findUserByIdAndRemove = async (id) => {
-    return userModel.findByIdAndRemove(id)
+    return userModel.findByIdAndRemove(id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
-createdUser = async (req) => {
-    const bcriptPassword = await bcrypt.hash(req.body.password, 10)
-    const createdUser = await userModel.create({
-        username: req.body.username,
-        password: bcriptPassword,
-        age: req.body.age,
-        address: req.body.address,
-        phone: req.body.phone,
-        email: req.body.email,
-        active: req.body.active,
-        business: req.body.business_id
-    })
-    return createdUser
+createdUser = async (user) => {
+    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
+    await user.save()
+    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
 updatedUser = async (user) => {
-    return user.save()
+    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
+    await user.save()
+    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
 // generate token, refesh_token and save refesh_token to user if login success
 generateToken = async (user) => {
     const generatedToken = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "10"}, function(err, token){
+        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "1 days"}, function(err, token){
             if(!err){
                 resolve(token)
             }

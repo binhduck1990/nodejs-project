@@ -1,8 +1,9 @@
 const userModel = require('../models/user')
 
 validate = async (req) => {
+    const validator = {isError : true}
     const listError = {}
-    const userValidate = new userModel({
+    const validatedUser = new userModel({
         username: req.body.username,
         password: req.body.password,
         age: req.body.age,
@@ -13,19 +14,24 @@ validate = async (req) => {
         business: req.body.business
     })
 
-    const err = userValidate.validateSync()
+    const err = validatedUser.validateSync()
     if(!!err){
         Object.keys(err.errors).forEach((key) => {
             listError[key] = err.errors[key].message
         });
-
-        return listError
+        validator.listError = listError
+        return validator
     }
 
     const user = await userModel.findOne({email: req.body.email})
     if(user){
-        return { user: 'user exist' }
+        validator.listError = {user: 'user exist'}
+        return validator
     }
+
+    validator.isError = false
+    validator.user = validatedUser
+    return validator
 }
 
 module.exports = {

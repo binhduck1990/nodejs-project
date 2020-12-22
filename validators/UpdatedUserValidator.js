@@ -1,19 +1,17 @@
 const userModel = require('../models/user')
-const bcrypt = require('bcrypt')
 
 validate = async(req) => {
+    const validator = { isError : true }
     const listError = {}
-    const checkEmailExist = await userModel.findOne({email: req.body.email, _id: {$ne: req.params.id}})
-    if(checkEmailExist){
-        return {
-            email : 'email exist'
-        }
+    let user = await userModel.findOne({email: req.body.email, _id: {$ne: req.params.id}})
+    if(user){
+        validator.listError = {email : 'email exist'}
+        return validator
     }
-    const user = await userModel.findById(req.params.id)
+    user = await userModel.findById(req.params.id)
     if(!user){
-        return {
-            user : 'user not found'
-        }
+        validator.listError = {user : 'user not found'}
+        return validator
     }
     if('username' in req.body){
         user.username = req.body.username
@@ -36,15 +34,17 @@ validate = async(req) => {
     if('active' in req.body){
         user.active = Boolean(req.body.active)
     }
-    const err = user.validateSync()
-    if(!!err){
-        Object.keys(err.errors).forEach((key) => {
-            listError[key] = err.errors[key].message
+    const validatedUser = user.validateSync()
+    if(!!validatedUser){
+        Object.keys(validatedUser.errors).forEach((key) => {
+            listError[key] = validatedUser.errors[key].message
         });
-        return listError
+        validator.listError = listError
+        return validator
     }
-    user.password = await bcrypt.hash(req.body.password, 10);
-    return user
+    validator.isError = false
+    validator.user = user
+    return validator
 }
 
 module.exports = {

@@ -6,7 +6,7 @@ const userSchema = new Schema({
       type: String,
       required: true,
       minLength: 1,
-      maxlength: 10
+      maxlength: 50
     },
     password: {
       type: String,
@@ -52,10 +52,10 @@ const userSchema = new Schema({
     business: [{
       type: Schema.Types.ObjectId,
       ref: 'business'
-    }]
-  }, {
-    collection: 'user',
-  }); 
+    }],
+  }, 
+  {collection: 'user', timestamps: true}
+  ); 
   
   const user = mongoose.model('user', userSchema);
   module.exports = user
