@@ -75,7 +75,6 @@ logout = async (req, res) => {
     }  
 }
 
-// users paginate
 paginate = async (req, res) => {
     try {
         const paginate = await userService.paginate(req)
@@ -85,7 +84,6 @@ paginate = async (req, res) => {
     }
 }
 
-// get user detail
 show = async (req, res) => {
     try {
         const user = await userService.findUserById(req)
@@ -98,7 +96,6 @@ show = async (req, res) => {
     }
 }
 
-// remove user
 destroy = async (req, res) => {
     try {
         const removedUser = await userService.findUserByIdAndRemove(req.params.id)
@@ -111,7 +108,6 @@ destroy = async (req, res) => {
     }
 }
 
-// create user
 create = async (req, res) => {
     try {
         const validatedData = await createdUserValidator.validate(req)
@@ -125,7 +121,6 @@ create = async (req, res) => {
     }
 }
 
-// update user
 update = async (req, res) => {
     try{
         const validatedData = await updatedUserValidator.validate(req)

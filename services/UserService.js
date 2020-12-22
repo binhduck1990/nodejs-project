@@ -22,7 +22,7 @@ findUserByEmail = async (req) => {
     return userModel.findOne({email: req.body.email})
 }
 
-// load relation of users model
+// lấy danh sách models quan hệ với model user
 getRelations = async (users, relations) => {
     const idsUser = []
     users.forEach(user => {
@@ -113,7 +113,7 @@ updatedUser = async (user) => {
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
-// generate token, refesh_token and save refesh_token to user if login success
+// tạo mới token, refresh_token nếu người dùng đăng nhập thành công
 generateToken = async (user) => {
     const generatedToken = new Promise((resolve, reject) => {
         jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "1 days"}, function(err, token){
@@ -142,7 +142,7 @@ generateToken = async (user) => {
     }
 }
 
-// get a black list array tokens in redis
+// lấy danh sách tất cả token bị xóa từ redis
 getTokenFromRedis = async () => {
     return new Promise((resolve, reject) => {
         client.lrange("tokenDelete", 0, -1, function(error, value){
@@ -154,7 +154,7 @@ getTokenFromRedis = async () => {
     })
 }
 
-// add token want to delete to an exist array tokens in redis
+// cập nhật token hết hạn vào 1 mảng trong redis nếu người dùng đăng xuất
 setTokenToRedis = async (token) => {
     return new Promise((resolve, reject) => {
         client.lpush("tokenDelete", token , function(error, value){
