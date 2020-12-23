@@ -53,6 +53,10 @@ const userSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'business'
     }],
+    role: {
+      type: String,
+      default: 'user'
+    }
   }, 
   {collection: 'user', timestamps: true}
   ); 

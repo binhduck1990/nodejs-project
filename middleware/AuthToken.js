@@ -52,6 +52,7 @@ checkToken = async (req, res, next) => {
                     
                     res.token = generatedToken.token
                     res.refresh_token = generatedToken.refreshToken
+                    res.user = user
                     return next()
                 } catch (error) {
                     // Xử lý lỗi server
@@ -87,6 +88,7 @@ checkToken = async (req, res, next) => {
             })
         }
         // token hợp lệ
+        res.user = user
         next() 
     } catch (error) {
         // Xử lý lỗi server

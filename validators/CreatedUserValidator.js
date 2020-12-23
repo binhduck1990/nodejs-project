@@ -11,7 +11,8 @@ validate = async (req) => {
         phone: req.body.phone,
         email: req.body.email,
         active: req.body.active,
-        business: req.body.business
+        business: req.body.business,
+        role: req.body.role
     })
 
     const err = validatedUser.validateSync()
