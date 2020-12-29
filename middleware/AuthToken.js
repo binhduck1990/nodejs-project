@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
-const userService = require('../services/UserService')
+const generateTokenHelper = require('../helpers/GenrateToken')
+const redisHelper = require('../helpers/Redis')
 
 checkToken = async (req, res, next) => {
     try {
@@ -42,7 +43,7 @@ checkToken = async (req, res, next) => {
                     }
                     
                     try {
-                        var generatedToken = await userService.generateToken(user)
+                        var [newToken, newRefreshToken] = await Promise.all([generateTokenHelper.generateToken(user), generateTokenHelper.generateRefreshToken(user)])
                     } catch (generate_token_error) {
                         // Xử lý lỗi khi tạo mới token, refresh_token
                         return res.status(401).json({
@@ -50,8 +51,8 @@ checkToken = async (req, res, next) => {
                         })
                     }
                     
-                    res.token = generatedToken.token
-                    res.refresh_token = generatedToken.refreshToken
+                    res.token = newToken
+                    res.refresh_token = newRefreshToken
                     res.user = user
                     return next()
                 } catch (error) {
@@ -81,7 +82,7 @@ checkToken = async (req, res, next) => {
             })
         }
 
-        const tokens = await userService.getTokenFromRedis()
+        const tokens = await redisHelper.getTokenFromRedis()
         if(tokens.includes(token)){
             return res.status(401).json({
                 message: 'token expired'

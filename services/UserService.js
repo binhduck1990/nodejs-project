@@ -1,9 +1,8 @@
 const userModel = require('../models/user');
 const businessModel = require('../models/business')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const redis = require("redis");
-const client = redis.createClient({ detect_buffers: true });
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt')
 
 findUserById = async (req) => {
     const user = await userModel.findById(req.params.id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
@@ -16,10 +15,6 @@ findUserById = async (req) => {
         user.business = business
     }
     return user
-}
-
-findUserByEmail = async (req) => {
-    return userModel.findOne({email: req.body.email})
 }
 
 // lấy danh sách models quan hệ với model user
@@ -102,78 +97,57 @@ findUserByIdAndRemove = async (id) => {
 }
 
 createdUser = async (user) => {
-    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
     await user.save()
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
 updatedUser = async (user) => {
-    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
     await user.save()
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
-// tạo mới token, refresh_token nếu người dùng đăng nhập thành công
-generateToken = async (user) => {
-    const generatedToken = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "1 days"}, function(err, token){
-            if(!err){
-                resolve(token)
-            }
-            reject(err)
-        })
-    })
-    const generatedRefeshToken = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
-            if(!err){
-                resolve(token)
-            }
-            reject(err)
-        })
-    })
-
-    const [token, refreshToken] = await Promise.all([generatedToken, generatedRefeshToken])
-  
-    user.refresh_token = refreshToken
-    await user.save()
-
-    return {
-        token, refreshToken
-    }
-}
-
-// lấy danh sách tất cả token bị xóa từ redis
-getTokenFromRedis = async () => {
-    return new Promise((resolve, reject) => {
-        client.lrange("tokenDelete", 0, -1, function(error, value){
+// Gửi reset_token_password vào mail của user nào quên mật khẩu
+sendMail = async (req) => {
+    const user = req.user
+    const updatedUser = await user.save()
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'binhduck2000@gmail.com',
+          pass: 'P@ssword1990'
+        }
+      });
+      
+      const mailOptions = {
+        from: 'binhduck2000@gmail.com',
+        to: updatedUser.email,
+        subject: 'We heard that you lost your GitHub password. Sorry about that! But don’t worry! You can use the following link to reset your password:',
+        text: `http://localhost:4000/api/user/reset-password/${updatedUser.reset_password_token}`
+      };
+      
+      return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, function(error, info){
             if(!error){
-                resolve(value)
+                resolve(info)
             }
             reject(error)
-        })
-    })
+          });
+      })
 }
 
-// cập nhật token hết hạn vào 1 mảng trong redis nếu người dùng đăng xuất
-setTokenToRedis = async (token) => {
-    return new Promise((resolve, reject) => {
-        client.lpush("tokenDelete", token , function(error, value){
-            if(!error){
-                resolve(value)
-            }
-            reject(error)
-        })
-    })
+// Cập nhật lại mật khẩu sau khi reset
+resetPassword = async (req) => {
+    const user = req.user
+    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
+    user.save()
 }
 
 module.exports = {
     paginate,
     findUserById,
-    findUserByEmail,
     findUserByIdAndRemove,
     createdUser,
     updatedUser,
-    generateToken,
-    getTokenFromRedis,
-    setTokenToRedis
+    sendMail,
+    resetPassword
 }

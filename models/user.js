@@ -49,6 +49,10 @@ const userSchema = new Schema({
       type: String,
       default: ''
     },
+    reset_password_token: {
+      type: String,
+      default: ''
+    },
     business: [{
       type: Schema.Types.ObjectId,
       ref: 'business'

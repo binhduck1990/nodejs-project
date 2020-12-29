@@ -1,13 +1,22 @@
 var express = require('express');
 var Router = express.Router();
+// Controller
 const UserController = require('../controllers/UserController')
 const BusinessController = require('../controllers/BusinessController')
+// MiddleWare
 const AuthToken = require('../middleware/AuthToken')
 const Role = require('../middleware/Role')
+// Validate
+const ResetPasswordValidator = require('../validators/ResetPasswordValidator')
+const SendMailValidator = require('../validators/SendMailValidator')
+const LoginValidator = require('../validators/LoginValidator')
+const LogoutValidator = require('../validators/LogoutValidator')
 
-Router.post('/user/login', UserController.login)
-Router.post('/user/logout', UserController.logout)
-Router.post('/user/', UserController.create)
+Router.post('/user', UserController.create)
+Router.post('/user/login', LoginValidator.validate, UserController.login)
+Router.post('/user/logout', LogoutValidator.validate, UserController.logout)
+Router.post('/user/reset-password', SendMailValidator.validate, UserController.sendMail)
+Router.put('/user/reset-password/:token', ResetPasswordValidator.validate, UserController.resetPassword)
 Router.use(AuthToken.checkToken)
 
 Router.get('/user', UserController.paginate)

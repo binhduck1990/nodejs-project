@@ -1,4 +1,5 @@
 const userModel = require('../models/user')
+const bcrypt = require('bcrypt')
 
 validate = async (req) => {
     const validator = {isError : true}
@@ -31,6 +32,7 @@ validate = async (req) => {
     }
 
     validator.isError = false
+    validatedUser.password = await bcrypt.hash(validatedUser.password, parseInt(process.env.BCRYPT))
     validator.user = validatedUser
     return validator
 }
