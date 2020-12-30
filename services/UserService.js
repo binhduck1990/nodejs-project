@@ -96,7 +96,18 @@ findUserByIdAndRemove = async (id) => {
     return userModel.findByIdAndRemove(id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
-createdUser = async (user) => {
+createdUser = async (req) => {
+    const user = new userModel({
+        username: req.body.username,
+        password: req.body.password,
+        age: req.body.age,
+        address: req.body.address,
+        phone: req.body.phone,
+        email: req.body.email,
+        active: req.body.active,
+        business: req.body.business,
+        role: req.body.role
+    })
     await user.save()
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }

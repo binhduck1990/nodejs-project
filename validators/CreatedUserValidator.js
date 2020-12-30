@@ -1,42 +1,43 @@
 const userModel = require('../models/user')
-const bcrypt = require('bcrypt')
+const { body, validationResult } = require('express-validator');
 
-validate = async (req) => {
-    const validator = {isError : true}
-    const listError = {}
-    const validatedUser = new userModel({
-        username: req.body.username,
-        password: req.body.password,
-        age: req.body.age,
-        address: req.body.address,
-        phone: req.body.phone,
-        email: req.body.email,
-        active: req.body.active,
-        business: req.body.business,
-        role: req.body.role
-    })
+validate = async (req, res, next) => {
+    // validate dữ liệu bằng express-validator
+    const validations = [
+        body('username')
+        .not().isEmpty().withMessage('username required').bail()
+        .isLength({ min: 1 }).withMessage('username min 1 characters').bail()
+        .isLength({ max: 50 }).withMessage('username max 50 characters'),
 
-    const err = validatedUser.validateSync()
-    if(!!err){
-        Object.keys(err.errors).forEach((key) => {
-            listError[key] = err.errors[key].message
-        });
-        validator.listError = listError
-        return validator
+        body('password')
+        .not().isEmpty().withMessage('password required').bail()
+        .isLength({ min: 8 }).withMessage('password min 8 characters').bail()
+        .isLength({ max: 50 }).withMessage('password max 50 characters'),
+
+        body('email')
+        .not().isEmpty().withMessage('email required').bail()
+        .isEmail().withMessage('email invalid').bail()
+        .isLength({ max: 50 }).withMessage('email max 50 characters').bail()
+        .custom(value => {
+            return userModel.findOne({email: value}).then(user => {
+              if (user) {
+                return Promise.reject('Email already in use');
+              }
+            });
+          }),
+
+        body('address')
+        .isLength({ max: 50 }).withMessage('address max 50 characters')
+    ]
+
+    await Promise.all(validations.map(validation => validation.run(req)));
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      return next();
     }
-
-    const user = await userModel.findOne({email: req.body.email})
-    if(user){
-        validator.listError = {user: 'user exist'}
-        return validator
-    }
-
-    validator.isError = false
-    validatedUser.password = await bcrypt.hash(validatedUser.password, parseInt(process.env.BCRYPT))
-    validator.user = validatedUser
-    return validator
+    return res.status(400).json({ errors: errors.array() });
 }
 
 module.exports = {
-    validate: validate
+    validate
 }
