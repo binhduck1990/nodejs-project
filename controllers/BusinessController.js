@@ -1,4 +1,3 @@
-const business = require('../models/business')
 const businessService = require('../services/BusinessService')
 const createdBusinessValidator = require('../validators/CreatedBusinessValidator')
 const updatedBusinessValidator = require('../validators/UpdatedBusinessValidator')

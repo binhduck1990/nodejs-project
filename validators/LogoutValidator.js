@@ -1,8 +1,8 @@
 const userModel = require('../models/user')
-const helper = require('../helpers/Redis')
+const redisHelper = require('../helpers/Redis')
 const jwt = require('jsonwebtoken');
 
-validate = async (req, res, next) => {
+logout = async (req, res, next) => {
     try {
         const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token
         if(!token){
@@ -29,13 +29,13 @@ validate = async (req, res, next) => {
             })
         }
         
-        const tokens = await helper.getTokenFromRedis()
+        const tokens = await redisHelper.getTokenFromRedis()
         if(tokens.includes(token)){
             req.token = token
             return next()
         }
 
-        const updatedToken = await helper.setTokenToRedis(token)
+        const updatedToken = await redisHelper.setTokenToRedis(token)
         if(updatedToken){
             req.token = token
             return next()
@@ -46,5 +46,5 @@ validate = async (req, res, next) => {
 }
 
 module.exports = {
-    validate
+    logout
 }

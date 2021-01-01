@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
-const userService = require('../services/UserService')
+const redisHelper = require('../helpers/Redis')
+const { check, validationResult } = require('express-validator');
 
-validate = async (req, res, next) => {
+resetPassword = async (req, res, next) => {
     try {
         const token = req.params.token
         if(!token){
@@ -29,29 +30,28 @@ validate = async (req, res, next) => {
             })
         }
         
-        const tokens = await userService.getTokenFromRedis()
+        const tokens = await redisHelper.getTokenFromRedis()
         if(tokens.includes(token)){
             return res.status(401).json({
                 message: 'token expried'
             })
         }
 
-        user.password = req.body.password
-        const validatedErrors = user.validateSync()
-        if(!!validatedErrors){
-            const listError = {}
-            Object.keys(validatedErrors.errors).forEach((key) => {
-                listError[key] = validatedErrors.errors[key].message
-            });
-            return res.status(400).json({message: listError})
+        await check('password')
+        .isLength({ min: 8 }).withMessage('password min 8 characters').bail()
+        .isLength({ max: 50 }).withMessage('password max 50 characters').run(req)
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() })
         }
+        
         req.user = user
-        next()
+        return next()
     } catch (error) {
         return res.status(404).json({message: error.message})
     }
 }
 
 module.exports = {
-    validate
+    resetPassword
 }

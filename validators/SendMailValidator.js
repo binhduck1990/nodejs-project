@@ -1,17 +1,18 @@
-const userService = require('../services/UserService')
+const generatedTokenHelper = require('../helpers/GenrateToken')
+const userModel = require('../models/user')
 
-validate = async (req, res, next) => {
+sendMail = async (req, res, next) => {
     try {
-        const user = await userService.findUserByEmail(req)
+        const user = await userModel.findOne({email: req.body.email})
         if(!user){
             return res.status(400).json({message: "email not found"})
         }
         try {
-            var generatedResetPasswordToken = await userService.generateResetPasswordToken(user)
+            var resetPasswordToken = await generatedTokenHelper.generateResetPasswordToken(user)
         } catch (jwt_error) {
             res.status(401).json({message: error.message});
         }
-        user.reset_password_token = generatedResetPasswordToken.resetPasswordToken
+        user.reset_password_token = resetPasswordToken
         req.user = user
         next()
     } catch (error) {
@@ -20,5 +21,5 @@ validate = async (req, res, next) => {
 }
 
 module.exports = {
-    validate
+    sendMail
 }

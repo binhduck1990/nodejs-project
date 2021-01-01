@@ -1,8 +1,8 @@
 const userModel = require('../models/user')
-const helper = require('../helpers/GenrateToken')
+const generatedTokenHelper = require('../helpers/GenrateToken')
 const bcrypt = require('bcrypt')
 
-validate = async (req, res, next) => {
+login = async (req, res, next) => {
     try {
         const user = await userModel.findOne({email: req.body.email})
         if(user){
@@ -11,7 +11,7 @@ validate = async (req, res, next) => {
                 return res.status(400).json({message: 'wrong email or password'})
             }
             try {
-                var [token, refreshToken] = await Promise.all([helper.generateToken(user), helper.generateRefreshToken(user)])
+                var token = await Promise.all([generatedTokenHelper.generateToken(user), generatedTokenHelper.generateRefreshToken(user)])
             } catch (jwt_error) {
                 return res.status(401).json({message: jwt_error.message});
             }
@@ -28,5 +28,5 @@ validate = async (req, res, next) => {
 }
 
 module.exports = {
-    validate
+    login
 }

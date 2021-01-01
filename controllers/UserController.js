@@ -1,5 +1,4 @@
 const userService = require('../services/UserService')
-const { validationResult } = require('express-validator');
 
 login = async (req, res) => {
     try {
@@ -69,12 +68,9 @@ create = async (req, res) => {
 }
 
 update = async (req, res) => {
+    console.log('123')
     try{
-        const validatedData = await updatedUserValidator.validate(req)
-        if(validatedData.isError){
-            return res.status(400).json({message: validatedData.listError})
-        }
-        const updatedUser = await userService.updatedUser(validatedData.user)
+        const updatedUser = await userService.updatedUser(req)
         res.status(200).json({message: 'success', data: updatedUser})
     }catch (error) {
         res.status(404).json({message: error.message})

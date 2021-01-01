@@ -1,6 +1,5 @@
 const userModel = require('../models/user');
 const businessModel = require('../models/business')
-const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt')
 
@@ -97,22 +96,42 @@ findUserByIdAndRemove = async (id) => {
 }
 
 createdUser = async (req) => {
+    const password = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT))
     const user = new userModel({
         username: req.body.username,
-        password: req.body.password,
+        password: password,
         age: req.body.age,
         address: req.body.address,
         phone: req.body.phone,
-        email: req.body.email,
-        active: req.body.active,
-        business: req.body.business,
-        role: req.body.role
+        email: req.body.email
     })
     await user.save()
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
-updatedUser = async (user) => {
+updatedUser = async (req) => {
+    const user = req.updatedUser
+    if('username' in req.body){
+        user.username = req.body.username
+    }
+    if('password' in req.body){
+        user.password = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT))
+    }
+    if('email' in req.body){
+        user.email = req.body.email
+    }
+    if('address' in req.body){
+        user.address = req.body.address
+    }
+    if('phone' in req.body){
+        user.phone = req.body.phone
+    }
+    if('age' in req.body){
+        user.age = req.body.age
+    }
+    if('active' in req.body){
+        user.active = req.body.active
+    }
     await user.save()
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
@@ -132,7 +151,7 @@ sendMail = async (req) => {
       const mailOptions = {
         from: 'binhduck2000@gmail.com',
         to: updatedUser.email,
-        subject: 'We heard that you lost your GitHub password. Sorry about that! But don’t worry! You can use the following link to reset your password:',
+        subject: 'We heard that you lost your password. Sorry about that! But don’t worry! You can use the following link to reset your password:',
         text: `http://localhost:4000/api/user/reset-password/${updatedUser.reset_password_token}`
       };
       
