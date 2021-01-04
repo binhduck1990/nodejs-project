@@ -2,6 +2,7 @@ const userModel = require('../models/user')
 const redisHelper = require('../helpers/Redis')
 const jwt = require('jsonwebtoken');
 
+// nếu người dùng logout thì lưu token vào 1 mảng trong redis, token đó sẽ không được sử dụng
 logout = async (req, res, next) => {
     try {
         const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token

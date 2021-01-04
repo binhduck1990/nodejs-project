@@ -2,7 +2,8 @@ const userService = require('../services/UserService')
 
 login = async (req, res) => {
     try {
-        const updatedUser = await userService.updatedUser(req.user)
+        // update lại thời gian hoạt động của token, refresh_token khi người dùng đăng nhập
+        const updatedUser = await userService.updatedUserRefreshToken(req)
         res.status(200).json({
             message: 'login success',
             user: updatedUser,
@@ -15,6 +16,7 @@ login = async (req, res) => {
 }
 
 logout = async (req, res) => {
+    // token hết hạn lưu ở redis
     try {
         res.status(200).json({
             message: 'deleted token success',
@@ -23,6 +25,17 @@ logout = async (req, res) => {
     } catch (error) {
         res.status(404).json({message: error.message});
     }  
+}
+
+refresh = async (req, res) => {
+    // refresh_token 
+    const updatedUser = await userService.updatedUserRefreshToken(req)
+    res.status(200).json({
+        message: 'refresh token success',
+        user: updatedUser,
+        token: req.token,
+        refreshToken: req.refreshToken
+    })  
 }
 
 paginate = async (req, res) => {
@@ -68,7 +81,6 @@ create = async (req, res) => {
 }
 
 update = async (req, res) => {
-    console.log('123')
     try{
         const updatedUser = await userService.updatedUser(req)
         res.status(200).json({message: 'success', data: updatedUser})
@@ -78,6 +90,7 @@ update = async (req, res) => {
 }
 
 sendMail = async (req, res) => {
+    // gửi url vào mail cho người dùng nếu quên mật khẩu
     try {
         await userService.sendMail(req)
         res.status(200).json({message: 'Please check your email to reset password'})
@@ -87,6 +100,7 @@ sendMail = async (req, res) => {
 }
 
 resetPassword = async (req, res) => {
+    // cập nhật lại mật khẩu mới cho người dùng
     try {
         await userService.resetPassword(req)
         res.status(200).json({message: 'reset password success'})
@@ -98,11 +112,13 @@ resetPassword = async (req, res) => {
 module.exports = {
     login,
     logout,
+    refresh,
     paginate,
     show,
     destroy,
     create,
     update,
     sendMail,
-    resetPassword
+    resetPassword,
+    updatedUserRefreshToken
 }

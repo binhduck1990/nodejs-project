@@ -8,7 +8,7 @@ resetPassword = async (req, res, next) => {
         const token = req.params.token
         if(!token){
             return res.status(401).json({
-                message: 'no token provided'
+                message: 'url invalid'
             })
         }
 
@@ -16,24 +16,17 @@ resetPassword = async (req, res, next) => {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
             if(decodedToken.type !== 'resetPasswordToken'){
                 return res.status(401).json({
-                    message: 'invalid token'
+                    message: 'url invalid'
                 })
             }
         } catch (jwt_error) {
-            return res.status(401).json({message: jwt_error.message});
+            return res.status(401).json({message: 'url invalid'});
         }
 
         const user = await userModel.findById(decodedToken.id)
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
-            })
-        }
-        
-        const tokens = await redisHelper.getTokenFromRedis()
-        if(tokens.includes(token)){
-            return res.status(401).json({
-                message: 'token expried'
             })
         }
 
@@ -44,7 +37,7 @@ resetPassword = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() })
         }
-        
+
         req.user = user
         return next()
     } catch (error) {

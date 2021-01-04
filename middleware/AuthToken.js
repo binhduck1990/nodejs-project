@@ -39,11 +39,10 @@ checkToken = async (req, res, next) => {
                 message: 'token expired'
             })
         }
-        // token hợp lệ
+        
         req.user = user
         next() 
     } catch (error) {
-        // Xử lý lỗi server
         return res.status(404).json({
             message: error.message
         })

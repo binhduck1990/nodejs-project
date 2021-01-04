@@ -11,12 +11,12 @@ login = async (req, res, next) => {
                 return res.status(400).json({message: 'wrong email or password'})
             }
             try {
-                var token = await Promise.all([generatedTokenHelper.generateToken(user), generatedTokenHelper.generateRefreshToken(user)])
+                var [token, refreshToken] = await Promise.all([generatedTokenHelper.generateToken(user), generatedTokenHelper.generateRefreshToken(user)])
             } catch (jwt_error) {
                 return res.status(401).json({message: jwt_error.message});
             }
             user.refreshToken = refreshToken
-            req.user = user
+            req.updatedUser = user
             req.token = token
             req.refreshToken = refreshToken
             return next() 

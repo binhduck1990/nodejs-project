@@ -136,9 +136,16 @@ updatedUser = async (req) => {
     return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
 }
 
+updatedUserRefreshToken = async (req) => {
+    const user = req.updatedUser
+    await user.save()
+    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+}
+
 // Gửi reset_token_password vào mail của user nào quên mật khẩu
 sendMail = async (req) => {
     const user = req.user
+    // lưu token reset password vào database
     const updatedUser = await user.save()
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -178,6 +185,7 @@ module.exports = {
     findUserByIdAndRemove,
     createdUser,
     updatedUser,
+    updatedUserRefreshToken,
     sendMail,
     resetPassword
 }
