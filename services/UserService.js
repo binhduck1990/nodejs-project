@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt')
 
 findUserById = async (req) => {
-    const user = await userModel.findById(req.params.id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+    const user = await userModel.findById(req.params.id)
     if(!user){
         return null
     }
@@ -51,7 +51,7 @@ paginate = async (req) => {
     const sortField = req.query.sort_field || 'createdAt'
     const sortBy = req.query.sort_by && req.query.sort_by.toLowerCase() == 'asc' ? 'asc' : 'desc'
 
-    const userQuery = userModel.find().select({'password' : 0, 'refresh_token' : 0, '__v' : 0}).sort({[sortField]: sortBy}).skip(offset).limit(perPage)
+    const userQuery = userModel.find().sort({[sortField]: sortBy}).skip(offset).limit(perPage)
     const totalUserQuery = userModel.countDocuments()
 
     const loadBusiness = req.query.load_business
@@ -92,7 +92,7 @@ paginate = async (req) => {
 }
 
 findUserByIdAndRemove = async (id) => {
-    return userModel.findByIdAndRemove(id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+    return userModel.findByIdAndRemove(id)
 }
 
 createdUser = async (req) => {
@@ -106,7 +106,7 @@ createdUser = async (req) => {
         email: req.body.email
     })
     await user.save()
-    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+    return userModel.findById(user._id)
 }
 
 updatedUser = async (req) => {
@@ -133,13 +133,13 @@ updatedUser = async (req) => {
         user.active = req.body.active
     }
     await user.save()
-    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+    return userModel.findById(user._id)
 }
 
 updatedUserRefreshToken = async (req) => {
     const user = req.updatedUser
     await user.save()
-    return userModel.findById(user._id).select({'password' : 0, 'refresh_token' : 0, '__v' : 0})
+    return userModel.findById(user._id)
 }
 
 // Gửi reset_token_password vào mail của user nào quên mật khẩu

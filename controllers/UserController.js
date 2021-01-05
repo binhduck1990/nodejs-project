@@ -29,19 +29,23 @@ logout = async (req, res) => {
 
 refresh = async (req, res) => {
     // refresh_token 
-    const updatedUser = await userService.updatedUserRefreshToken(req)
-    res.status(200).json({
-        message: 'refresh token success',
-        user: updatedUser,
-        token: req.token,
-        refreshToken: req.refreshToken
-    })  
+    try {
+        const updatedUser = await userService.updatedUserRefreshToken(req)
+        res.status(200).json({
+            message: 'refresh token success',
+            user: updatedUser,
+            token: req.token,
+            refreshToken: req.refreshToken
+        })
+    } catch (error) {
+        res.status(404).json({message: error.message});
+    }   
 }
 
 paginate = async (req, res) => {
     try {
         const paginate = await userService.paginate(req)
-        res.status(200).json({message: 'success', data: paginate.users})
+        res.status(200).json({message: 'success', users: paginate.users})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -53,7 +57,7 @@ show = async (req, res) => {
         if(!user){
             return res.status(400).json({message: 'user not found'})
         }
-        res.status(200).json({message: 'success', data: user})
+        res.status(200).json({message: 'success', user: user})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -65,7 +69,7 @@ destroy = async (req, res) => {
         if(!removedUser){
             return res.status(400).json({message: 'user not found'})
         }
-        res.status(200).json({message: 'success', data: removedUser})
+        res.status(200).json({message: 'success', user: removedUser})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -83,7 +87,7 @@ create = async (req, res) => {
 update = async (req, res) => {
     try{
         const updatedUser = await userService.updatedUser(req)
-        res.status(200).json({message: 'success', data: updatedUser})
+        res.status(200).json({message: 'success', user: updatedUser})
     }catch (error) {
         res.status(404).json({message: error.message})
     }

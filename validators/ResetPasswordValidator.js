@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/user')
-const redisHelper = require('../helpers/Redis')
 const { check, validationResult } = require('express-validator');
 
 resetPassword = async (req, res, next) => {
@@ -23,10 +22,16 @@ resetPassword = async (req, res, next) => {
             return res.status(401).json({message: 'url invalid'});
         }
 
-        const user = await userModel.findById(decodedToken.id)
+        const user = await userModel.findById(decodedToken.id).select('+password +reset_password_token')
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
+            })
+        }
+
+        if(user.reset_password_token !== token){
+            return res.status(401).json({
+                message: 'url invalid'
             })
         }
 

@@ -92,7 +92,7 @@ update = async (req, res, next) => {
       return res.status(400).json({ message: 'user not found' })
     }
 
-    const user = await userModel.findById(req.params.id)
+    const user = await userModel.findById(req.params.id).select('+password')
     if(!user){
       return res.status(400).json({ message: 'user not found' })
     }

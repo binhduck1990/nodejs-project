@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 
 login = async (req, res, next) => {
     try {
-        const user = await userModel.findOne({email: req.body.email})
+        const user = await userModel.findOne({email: req.body.email}).select('+password +refresh_token')
         if(user){
             const comparedPassword = await bcrypt.compare(req.body.password, user.password)
             if(!comparedPassword){
@@ -15,7 +15,7 @@ login = async (req, res, next) => {
             } catch (jwt_error) {
                 return res.status(401).json({message: jwt_error.message});
             }
-            user.refreshToken = refreshToken
+            user.refresh_token = refreshToken
             req.updatedUser = user
             req.token = token
             req.refreshToken = refreshToken

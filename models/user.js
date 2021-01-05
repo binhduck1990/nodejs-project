@@ -6,7 +6,8 @@ const userSchema = new Schema({
       type: String
     },
     password: {
-      type: String
+      type: String,
+      select: false
     },
     email: {
       type: String,
@@ -30,11 +31,13 @@ const userSchema = new Schema({
     },
     refresh_token: {
       type: String,
-      default: ''
+      default: '',
+      select: false
     },
     reset_password_token: {
       type: String,
-      default: ''
+      default: '',
+      select: false
     },
     business: [{
       type: Schema.Types.ObjectId,

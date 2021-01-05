@@ -19,21 +19,21 @@ refresh = async (req, res, next) => {
                 message: decode_token_error.message
             })
         }
+
         // Nếu token hợp lệ thì kiểm tra tiếp các thông tin khác trong token
-        
         if(decodedToken && decodedToken.type !== 'refreshToken'){
             return res.status(401).json({
                 message: 'invalid refresh_token'
             })
         }
 
-        const user = await userModel.findById(decodedToken.id)
+        const user = await userModel.findById(decodedToken.id).select('+refresh_token')
         if(!user){
             return res.status(401).json({
                 message: 'user not found'
             })
         }
-
+     
         if(user.refresh_token != refreshToken){
             return res.status(401).json({
                 message: 'invalid refresh_token'
@@ -46,7 +46,7 @@ refresh = async (req, res, next) => {
             return res.status(401).json({message: jwt_error.message});
         }
 
-        user.refreshToken = newRefreshToken
+        user.refresh_token = newRefreshToken
         req.token = token
         req.refreshToken = newRefreshToken
         req.updatedUser = user
