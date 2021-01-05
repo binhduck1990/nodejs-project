@@ -136,7 +136,7 @@ updatedUser = async (req) => {
     return userModel.findById(user._id)
 }
 
-updatedUserRefreshToken = async (req) => {
+updateRefreshToken = async (req) => {
     const user = req.updatedUser
     await user.save()
     return userModel.findById(user._id)
@@ -185,7 +185,7 @@ module.exports = {
     findUserByIdAndRemove,
     createdUser,
     updatedUser,
-    updatedUserRefreshToken,
+    updateRefreshToken,
     sendMail,
     resetPassword
 }

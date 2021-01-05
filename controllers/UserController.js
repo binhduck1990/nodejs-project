@@ -3,7 +3,7 @@ const userService = require('../services/UserService')
 login = async (req, res) => {
     try {
         // update lại thời gian hoạt động của token, refresh_token khi người dùng đăng nhập
-        const updatedUser = await userService.updatedUserRefreshToken(req)
+        const updatedUser = await userService.updateRefreshToken(req)
         res.status(200).json({
             message: 'login success',
             user: updatedUser,
@@ -30,7 +30,7 @@ logout = async (req, res) => {
 refresh = async (req, res) => {
     // refresh_token 
     try {
-        const updatedUser = await userService.updatedUserRefreshToken(req)
+        const updatedUser = await userService.updateRefreshToken(req)
         res.status(200).json({
             message: 'refresh token success',
             user: updatedUser,
@@ -124,5 +124,5 @@ module.exports = {
     update,
     sendMail,
     resetPassword,
-    updatedUserRefreshToken
+    updateRefreshToken
 }
