@@ -60,6 +60,10 @@ paginate = async (req) => {
         userQuery.where('username', new RegExp(req.query.username, "i"))
         totalUserQuery.where('username', new RegExp(req.query.username, "i"))
     }
+    if(req.query.email){
+        userQuery.where('email', new RegExp(req.query.email, "i"))
+        totalUserQuery.where('email', new RegExp(req.query.email, "i"))
+    }
     if(req.query.age){
         userQuery.where('age', req.query.age)    
         totalUserQuery.where('username', new RegExp(req.query.username, "i"))

@@ -6,12 +6,14 @@ create = async (req, res, next) => {
   try {
     const validations = [
       check('username')
+        .notEmpty().withMessage('username required').bail()
         .isLength({ min: 1 }).withMessage('username min 1 characters').bail()
         .isLength({ max: 50 }).withMessage('username max 50 characters'),
       check('password')
         .isLength({ min: 8 }).withMessage('password min 8 characters').bail()
         .isLength({ max: 50 }).withMessage('password max 50 characters'),
       check('phone')
+        .if(check('phone').exists())
         .isLength({ min: 10 }).withMessage('phone min 10 characters').bail()
         .isLength({ max: 50 }).withMessage('phone max 50 characters'),
       check('email')
@@ -28,6 +30,7 @@ create = async (req, res, next) => {
       check('address')
         .isLength({ max: 50 }).withMessage('address max 50 characters'),
       check('age')
+        .if(check('age').exists())
         .isNumeric().withMessage('age must be a number')
   ]
   
