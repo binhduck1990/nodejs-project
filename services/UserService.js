@@ -70,7 +70,7 @@ paginate = async (req) => {
     }
     if(req.query.address){
         userQuery.where('address', new RegExp(req.query.address, "i"))
-        totalUserQuery.where('username', new RegExp(req.query.username, "i"))
+        totalUserQuery.where('username', new RegExp(req.query.address, "i"))
     }
 
     const usersProgess = userQuery.exec()
