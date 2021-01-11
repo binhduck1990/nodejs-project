@@ -66,11 +66,15 @@ paginate = async (req) => {
     }
     if(req.query.age){
         userQuery.where('age', req.query.age)    
-        totalUserQuery.where('username', new RegExp(req.query.username, "i"))
+        totalUserQuery.where('age', new RegExp(req.query.age, "i"))
     }
     if(req.query.address){
         userQuery.where('address', new RegExp(req.query.address, "i"))
-        totalUserQuery.where('username', new RegExp(req.query.address, "i"))
+        totalUserQuery.where('address', new RegExp(req.query.address, "i"))
+    }
+    if(req.query.phone){
+        userQuery.where('phone', new RegExp(req.query.phone, "i"))
+        totalUserQuery.where('phone', new RegExp(req.query.phone, "i"))
     }
 
     const usersProgess = userQuery.exec()
