@@ -45,7 +45,7 @@ refresh = async (req, res) => {
 paginate = async (req, res) => {
     try {
         const paginate = await userService.paginate(req)
-        res.status(200).json({message: 'success', users: paginate.users})
+        res.status(200).json({message: 'success', users: paginate.users, total: paginate.total})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
