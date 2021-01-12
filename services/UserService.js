@@ -1,7 +1,8 @@
 const userModel = require('../models/user');
-const businessModel = require('../models/business')
+const businessModel = require('../models/business');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const moment = require('moment');
 
 findUserById = async (req) => {
     const user = await userModel.findById(req.params.id)
@@ -75,6 +76,12 @@ paginate = async (req) => {
     if(req.query.phone){
         userQuery.where('phone', new RegExp(req.query.phone, "i"))
         totalUserQuery.where('phone', new RegExp(req.query.phone, "i"))
+    }
+    if(req.query.created_at){
+        const startDay = new moment(req.query.created_at, 'DD-MM-YYYY').startOf('day')
+        const endDay = new moment(req.query.created_at, 'DD-MM-YYYY').endOf('day')
+        userQuery.where('createdAt').gte(startDay).lte(endDay)
+        totalUserQuery.where('createdAt').gte(startDay).lte(endDay)
     }
 
     const usersProgess = userQuery.exec()
