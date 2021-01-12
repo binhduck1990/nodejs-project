@@ -44,14 +44,14 @@ getRelations = async (users, relations) => {
 paginate = async (req) => {
     const paginate = {}
 
-    const perPage = parseInt(req.query.per_page) || 20
+    const pageSize = parseInt(req.query.page_size) || 10
     const page = parseInt(req.query.page) || 1
-    const offset = perPage*page - perPage;
+    const offset = pageSize*page - pageSize;
 
     const sortField = req.query.sort_field || 'createdAt'
     const sortBy = req.query.sort_by && req.query.sort_by.toLowerCase() == 'asc' ? 'asc' : 'desc'
 
-    const userQuery = userModel.find().sort({[sortField]: sortBy}).skip(offset).limit(perPage)
+    const userQuery = userModel.find().sort({[sortField]: sortBy}).skip(offset).limit(pageSize)
     const totalUserQuery = userModel.countDocuments()
 
     const loadBusiness = req.query.load_business
@@ -95,6 +95,8 @@ paginate = async (req) => {
 
     paginate.users = users
     paginate.total = total
+    paginate.page = page
+    paginate.pageSize = pageSize
     
     return paginate
 }
