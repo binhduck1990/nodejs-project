@@ -69,7 +69,7 @@ destroy = async (req, res) => {
         if(!removedUser){
             return res.status(400).json({message: 'user not found'})
         }
-        res.status(200).json({message: 'success', user: removedUser})
+        res.status(200).json({message: 'deleted user success', user: removedUser})
     } catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -78,7 +78,7 @@ destroy = async (req, res) => {
 create = async (req, res) => {
     try {
         const createdUser = await userService.createdUser(req)
-        res.status(200).json({message: 'success', user: createdUser})
+        res.status(200).json({message: 'created user success', user: createdUser})
     }catch (error) {
         res.status(404).json({message: error.message})
     }
@@ -87,7 +87,7 @@ create = async (req, res) => {
 update = async (req, res) => {
     try{
         const updatedUser = await userService.updatedUser(req)
-        res.status(200).json({message: 'success', user: updatedUser})
+        res.status(200).json({message: 'updated user success', user: updatedUser})
     }catch (error) {
         res.status(404).json({message: error.message})
     }

@@ -9,6 +9,7 @@ canManageUser = (req, res, next) => {
             message: 'permission denied'
         })     
     } catch (error) {
+        console.log('hehe', error)
         return res.status(404).json({
             message: error.message
         })  
