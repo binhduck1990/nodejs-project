@@ -25,7 +25,7 @@ const uploadAvatar = (req, res, next) => {
             cb(null, true)
         },
         limits:{
-            fileSize: 1024 * 1024
+            fileSize: 1024 * 1024 * 2
         }
     }).single('avatar')
     upload(req, res, function (error) {
