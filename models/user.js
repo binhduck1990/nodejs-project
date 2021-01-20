@@ -46,6 +46,10 @@ const userSchema = new Schema({
     role: {
       type: String,
       default: 'user'
+    },
+    avatar: {
+      type: String,
+      default: ''
     }
   }, 
   {collection: 'user', timestamps: true}

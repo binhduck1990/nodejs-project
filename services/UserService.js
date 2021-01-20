@@ -120,7 +120,8 @@ createdUser = async (req) => {
         age: req.body.age,
         address: req.body.address,
         phone: req.body.phone,
-        email: req.body.email
+        email: req.body.email,
+        avatar: req.file ? req.file.filename : ''
     })
     await user.save()
     return userModel.findById(user._id)
@@ -148,6 +149,11 @@ updatedUser = async (req) => {
     }
     if('active' in req.body){
         user.active = req.body.active
+    }
+    if(req.file){
+        user.avatar = req.file.filename
+    }else{
+        user.avatar = ''
     }
     await user.save()
     return userModel.findById(user._id)

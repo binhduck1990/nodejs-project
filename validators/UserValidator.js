@@ -1,5 +1,8 @@
 const userModel = require('../models/user')
-const { check, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator')
+const fs = require('fs')
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
 const ObjectID = require("mongodb").ObjectID
 
 create = async (req, res, next) => {
@@ -38,6 +41,9 @@ create = async (req, res, next) => {
     const errors = validationResult(req);
     if (errors.isEmpty()) {
       return next()
+    }
+    if(req.file){
+      await unlinkAsync(req.file.path)
     }
     return res.status(400).json({ message: errors.array() })
   } catch (error) {
