@@ -10,7 +10,6 @@ create = async (req, res, next) => {
     const validations = [
       check('username')
         .notEmpty().withMessage('username required').bail()
-        .isLength({ min: 1 }).withMessage('username min 1 characters').bail()
         .isLength({ max: 50 }).withMessage('username max 50 characters'),
       check('password')
         .isLength({ min: 8 }).withMessage('password min 8 characters').bail()
@@ -32,9 +31,12 @@ create = async (req, res, next) => {
           }),
       check('address')
         .isLength({ max: 50 }).withMessage('address max 50 characters'),
-      check('age')
-        .if(check('age').exists())
-        .isNumeric().withMessage('age must be a number')
+      check('age').custom((value, { req }) => {
+        if(req.body.age && !Number.isInteger(parseInt(req.body.age))){
+          throw new Error('age must be a number')
+        }
+        return true
+      })
   ]
   
     await Promise.all(validations.map(validation => validation.run(req)));
@@ -56,7 +58,6 @@ update = async (req, res, next) => {
     const validations = [
       check('username')
         .if(check('username').exists())
-        .isLength({ min: 1 }).withMessage('username min 1 characters').bail()
         .isLength({ max: 50 }).withMessage('username max 50 characters'),
       check('password')
         .if(check('password').exists())
@@ -68,7 +69,7 @@ update = async (req, res, next) => {
         .isLength({ max: 50 }).withMessage('phone max 50 characters'),
       check('email')
         .if(check('email').exists())
-        .not().isEmpty().withMessage('email required').bail()
+        .notEmpty().withMessage('email required').bail()
         .isEmail().withMessage('email invalid').bail()
         .isLength({ max: 50 }).withMessage('email max 50 characters').bail()
         .custom(value => {
@@ -81,9 +82,12 @@ update = async (req, res, next) => {
       check('address')
         .if(check('address').exists())
         .isLength({ max: 50 }).withMessage('address max 50 characters'),
-      check('age')
-        .if(check('age').exists())
-        .isNumeric().withMessage('age must be a number'),
+      check('age').custom((value, { req }) => {
+        if(req.body.age && !Number.isInteger(parseInt(req.body.age))){
+          throw new Error('age must be a number')
+        }
+        return true
+      }),
       check('active')
         .if(check('active').exists())
         .isBoolean().withMessage('active must be a boolean')

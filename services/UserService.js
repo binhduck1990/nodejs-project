@@ -121,10 +121,22 @@ createdUser = async (req) => {
         address: req.body.address,
         phone: req.body.phone,
         email: req.body.email,
-        avatar: req.file ? req.file.filename : ''
+        gender: req.body.gender,
+        avatar: req.file ? req.file.filename : getAvatarByGender(req.body.gender)
     })
     await user.save()
     return userModel.findById(user._id)
+}
+
+getAvatarByGender = (gender) => {
+    let avatar = 'default_avatar.jpeg'
+    if(gender === 'male'){
+        avatar = 'default_avatar_male.jpeg'
+    }
+    if(gender === 'female'){
+        avatar = 'default_avatar_female.jpeg'
+    }
+    return avatar
 }
 
 updatedUser = async (req) => {
@@ -150,10 +162,26 @@ updatedUser = async (req) => {
     if('active' in req.body){
         user.active = req.body.active
     }
+    if('gender' in req.body){
+        if(req.body.gender === 'male'){
+            user.gender = req.body.gender
+        }if(req.body.gender === 'female'){
+            user.gender = req.body.gender
+        }    
+    }
     if(req.file){
         user.avatar = req.file.filename
     }else{
-        user.avatar = ''
+        // Nếu trường avatar undefine, client bắn "default_avatar(boolean)" reset avatar user về default avatar
+        if(req.body.default_avatar && user.gender === 'male'){
+            user.avatar = 'default_avatar_male.jpeg'
+        }
+        if(req.body.default_avatar && user.gender === 'female'){
+            user.avatar = 'default_avatar_female.jpeg'
+        }
+        if(req.body.default_avatar && user.gender === 'other'){
+            user.avatar = 'default_avatar.jpeg'
+        }
     }
     await user.save()
     return userModel.findById(user._id)

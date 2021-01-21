@@ -50,6 +50,10 @@ const userSchema = new Schema({
     avatar: {
       type: String,
       default: ''
+    },
+    gender: {
+      type: String,
+      defallt: 'other'
     }
   }, 
   {collection: 'user', timestamps: true}
