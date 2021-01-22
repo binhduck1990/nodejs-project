@@ -226,7 +226,7 @@ sendMail = async (req) => {
 // Cập nhật lại mật khẩu sau khi reset
 resetPassword = async (req) => {
     const user = req.user
-    user.password = await bcrypt.hash(user.password, parseInt(process.env.BCRYPT))
+    user.password = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT))
     user.save()
 }
 

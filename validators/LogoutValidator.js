@@ -5,13 +5,14 @@ const jwt = require('jsonwebtoken');
 // nếu người dùng logout thì lưu token vào 1 mảng trong redis, token đó sẽ không được sử dụng
 logout = async (req, res, next) => {
     try {
-        const token = req.headers.authorization.trim().split(" ")[1] || req.body.token || req.query.token
+        let token = req.headers.authorization
         if(!token){
             return res.status(401).json({
                 message: 'no token provided'
             })
         }
-        
+        token = token.trim().split(" ")[1]
+
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
             if(decodedToken.type !== 'token'){

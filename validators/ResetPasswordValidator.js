@@ -10,7 +10,7 @@ resetPassword = async (req, res, next) => {
                 message: 'url invalid'
             })
         }
-
+        
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
             if(decodedToken.type !== 'resetPasswordToken'){
