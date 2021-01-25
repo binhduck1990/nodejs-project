@@ -172,7 +172,6 @@ updatedUser = async (req) => {
     if(req.file){
         user.avatar = req.file.filename
     }else{
-        // Nếu trường avatar undefine, client bắn "default_avatar(boolean)" reset avatar user về default avatar
         if(req.body.default_avatar && user.gender === 'male'){
             user.avatar = 'default_avatar_male.jpeg'
         }
