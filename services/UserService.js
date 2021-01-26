@@ -165,23 +165,24 @@ updatedUser = async (req) => {
     if('gender' in req.body){
         if(req.body.gender === 'male'){
             user.gender = req.body.gender
-        }if(req.body.gender === 'female'){
+        }else if(req.body.gender === 'female'){
             user.gender = req.body.gender
-        }    
+        }else{
+            user.gender = 'other'
+        }  
     }
     if(req.file){
         user.avatar = req.file.filename
     }else{
-        if(req.body.default_avatar && user.gender === 'male'){
+        if(req.body.default_avatar && req.body.gender === 'male'){
             user.avatar = 'default_avatar_male.jpeg'
-        }
-        if(req.body.default_avatar && user.gender === 'female'){
+        }else if(req.body.default_avatar && req.body.gender === 'female'){
             user.avatar = 'default_avatar_female.jpeg'
-        }
-        if(req.body.default_avatar && user.gender === 'other'){
+        }else if(req.body.default_avatar){
             user.avatar = 'default_avatar.jpeg'
         }
     }
+
     await user.save()
     return userModel.findById(user._id)
 }

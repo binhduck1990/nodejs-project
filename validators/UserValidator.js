@@ -25,7 +25,7 @@ create = async (req, res, next) => {
         .custom(value => {
             return userModel.findOne({email: value}).then(user => {
               if (user) {
-                return Promise.reject('Email already in use')
+                return Promise.reject('email already in use')
               }
             });
           }),
@@ -33,7 +33,7 @@ create = async (req, res, next) => {
         .isLength({ max: 50 }).withMessage('address max 50 characters'),
       check('age').custom((value, { req }) => {
         if(req.body.age && !Number.isInteger(parseInt(req.body.age))){
-          throw new Error('age must be a number')
+          return Promise.reject('age must be a number')
         }
         return true
       })
@@ -63,9 +63,12 @@ update = async (req, res, next) => {
         .if(check('password').exists())
         .isLength({ min: 8 }).withMessage('password min 8 characters').bail()
         .isLength({ max: 50 }).withMessage('password max 50 characters'),
-      check('phone')
-        .if(check('phone').exists())
-        .isLength({ min: 10 }).withMessage('phone min 10 characters').bail()
+      check('phone').custom((value, { req }) => {
+        if(req.body.phone && req.body.phone.length < 10){
+          return Promise.reject('phone min 10 characters')
+        }
+        return true
+      })
         .isLength({ max: 50 }).withMessage('phone max 50 characters'),
       check('email')
         .if(check('email').exists())
@@ -75,7 +78,7 @@ update = async (req, res, next) => {
         .custom(value => {
             return userModel.findOne({email: value, _id: {$ne: req.params.id}}).then(user => {
               if (user) {
-                return Promise.reject('Email already in use')
+                return Promise.reject('email already in use')
               }
             });
           }),
@@ -84,7 +87,7 @@ update = async (req, res, next) => {
         .isLength({ max: 50 }).withMessage('address max 50 characters'),
       check('age').custom((value, { req }) => {
         if(req.body.age && !Number.isInteger(parseInt(req.body.age))){
-          throw new Error('age must be a number')
+          return Promise.reject('age must be a number')
         }
         return true
       }),
