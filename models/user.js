@@ -54,8 +54,16 @@ const userSchema = new Schema({
   gender: {
     type: String,
     defallt: 'other'
-    }
-  }, 
+  },
+  birthday: {
+    type: Date,
+    defallt: ''
+  },
+  hobbies: {
+    type: Array,
+    defallt: []
+  }
+}, 
   {collection: 'user', timestamps: true}
   ); 
   

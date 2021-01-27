@@ -122,6 +122,8 @@ createdUser = async (req) => {
         phone: req.body.phone,
         email: req.body.email,
         gender: req.body.gender,
+        birthday: req.body.birthday,
+        hobbies: req.body.hobbies,
         avatar: req.file ? req.file.filename : getAvatarByGender(req.body.gender)
     })
     await user.save()
@@ -170,6 +172,12 @@ updatedUser = async (req) => {
         }else{
             user.gender = 'other'
         }  
+    }
+    if('birthday' in req.body){
+        user.birthday = req.body.birthday
+    }
+    if('hobbies' in req.body){
+        user.hobbies = req.body.hobbies
     }
     if(req.file){
         user.avatar = req.file.filename
