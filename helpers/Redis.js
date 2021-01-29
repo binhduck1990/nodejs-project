@@ -25,6 +25,17 @@ setTokenToRedis = async (token) => {
     })
 }
 
+setSocketUserId = async (userId) => {
+    return new Promise((resolve, reject) => {
+        client.lpush("users", userId , function(error, value){
+            if(!error){
+                resolve(value)
+            }
+            reject(error)
+        })
+    })
+}
+
 module.exports = {
-    getTokenFromRedis, setTokenToRedis
+    getTokenFromRedis, setTokenToRedis, setSocketUserId
 }
