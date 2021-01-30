@@ -29,6 +29,10 @@ const userSchema = new Schema({
     type: Boolean,
     default: true
   },
+  status: {
+    type: Boolean,
+    default: false
+  },
   refresh_token: {
     type: String,
     default: '',

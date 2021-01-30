@@ -8,6 +8,7 @@ var cors = require('cors');
 var Router = require('./routes/api');
 var app = express();
 var redisHelper = require('./helpers/Redis')
+var userModel = require('./models/user')
 
 // app.use(logger('dev'));
 app.use(express.json());
