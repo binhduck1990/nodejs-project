@@ -7,43 +7,22 @@ var logger = require('morgan');
 var cors = require('cors');
 var Router = require('./routes/api');
 var app = express();
-var redisHelper = require('./helpers/Redis')
-var userModel = require('./models/user')
+var socket = require('./helpers/Socket')
 
 // app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors())
+app.use(cors({origin: '*'}))
 
+// socket IO
 const server = require('http').createServer(app)
-var io = require('socket.io')(server, {cors: {origin: '*'}})
-let userIds = [];
-io.on('connection', (socket) => {
-  socket.on('userId', (userId, fn) => {
-    if (!userIds.includes(userId)) userIds.push(userId)
-    fn(true)
-  })
-
-  socket.on('status', () => {
-    io.emit('userIds', userIds)
-  })
-
-  socket.on('logout', (userId, fn) => {
-    var index = userIds.indexOf(userId)
-    userIds.splice(index, 1)
-    io.emit('userIds', userIds)
-    fn(true)
-  })
-
-  // DISCONNECT EVENT
-  socket.on('disconnect', (reason) => {
-    socket.disconnect(); // DISCONNECT SOCKET
-  });
-
-});
+const io = require('socket.io')(server)
+socket.connect(io)
 server.listen(5000)
 
+
+// api 
 app.use('/api', Router);
 
 // catch 404 and forward to error handler
