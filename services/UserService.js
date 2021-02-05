@@ -108,6 +108,11 @@ paginate = async (req) => {
     return paginate
 }
 
+index = async (req) => {
+    const users = await userModel.find().exec()
+    return users
+}
+
 findUserByIdAndRemove = async (id) => {
     return userModel.findByIdAndRemove(id)
 }
@@ -239,6 +244,7 @@ resetPassword = async (req) => {
 }
 
 module.exports = {
+    index,
     paginate,
     findUserById,
     findUserByIdAndRemove,
@@ -246,5 +252,5 @@ module.exports = {
     updatedUser,
     updateRefreshToken,
     sendMail,
-    resetPassword
+    resetPassword,
 }

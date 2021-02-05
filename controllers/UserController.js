@@ -51,6 +51,15 @@ paginate = async (req, res) => {
     }
 }
 
+index = async (req, res) => {
+    try {
+        const users = await userService.index(req)
+        res.status(200).json({message: 'success', users: users})
+    } catch (error) {
+        res.status(404).json({message: error.message})
+    }
+}
+
 show = async (req, res) => {
     try {
         const user = await userService.findUserById(req)
@@ -124,5 +133,6 @@ module.exports = {
     update,
     sendMail,
     resetPassword,
-    updateRefreshToken
+    updateRefreshToken,
+    index
 }
