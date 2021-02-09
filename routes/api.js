@@ -26,7 +26,7 @@ Router.use(AuthToken.checkToken)
 
 Router.get('/user', UserController.paginate)
 Router.get('/user/all', UserController.index)
-Router.get('/user/:id', RoleMiddleware.canManageUser, UserController.show)
+Router.get('/user/:id', UserController.show)
 Router.delete('/user/:id', RoleMiddleware.canManageUser, UserController.destroy)
 Router.put('/user/:id', RoleMiddleware.canManageUser, MulterMiddleware.uploadAvatar, UserValidator.update, UserController.update)
 
