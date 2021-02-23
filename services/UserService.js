@@ -1,5 +1,4 @@
 const userModel = require('../models/user');
-const businessModel = require('../models/business');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
@@ -9,37 +8,7 @@ findUserById = async (req) => {
     if(!user){
         return null
     }
-    const loadBusiness = req.query.load_business
-    if(loadBusiness === 'true'){
-        const business = await businessModel.find({user: user._id})
-        user.business = business
-    }
     return user
-}
-
-// lấy danh sách models quan hệ với model user
-getRelations = async (users, relations) => {
-    const idsUser = []
-    users.forEach(user => {
-        idsUser.push(user._id)
-    });
-
-    if(relations.includes('business')){
-        var business = await businessModel.find().where('user').in(idsUser)
-    }
-    
-    return users.map(user => {
-        if(relations.includes('business')){
-            const listBusiness = []
-            for (let i = business.length - 1; i >= 0; i--) {
-                if(user._id.equals(business[i].user)){
-                    listBusiness.push(business[i])
-                    business.splice(i, 1)
-                }
-            }
-            user.business = listBusiness
-        }
-    }); 
 }
 
 paginate = async (req) => {
@@ -54,8 +23,6 @@ paginate = async (req) => {
 
     const userQuery = userModel.find().sort({[sortField]: sortBy}).skip(offset).limit(pageSize)
     const totalUserQuery = userModel.countDocuments()
-
-    const loadBusiness = req.query.load_business
 
     if(req.query.username){
         userQuery.where('username', new RegExp(req.query.username, "i"))
@@ -89,16 +56,6 @@ paginate = async (req) => {
 
     const users = await usersProgess
     const total = await totalProgess
-
-    if(users.length){
-        const relations = []
-        if(loadBusiness === 'true'){
-            relations.push('business')
-        }
-        if(relations.length){
-            await getRelations(users, relations)  
-        } 
-    }
 
     paginate.users = users
     paginate.total = total

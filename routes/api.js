@@ -3,7 +3,7 @@ var Router = express.Router();
 
 // Controller
 const UserController = require('../controllers/UserController')
-const BusinessController = require('../controllers/BusinessController')
+const ChatController = require('../controllers/ChatController')
 // MiddleWare
 const AuthToken = require('../middleware/AuthToken')
 const RoleMiddleware = require('../middleware/Role')
@@ -30,9 +30,6 @@ Router.get('/user/:id', UserController.show)
 Router.delete('/user/:id', RoleMiddleware.canManageUser, UserController.destroy)
 Router.put('/user/:id', RoleMiddleware.canManageUser, MulterMiddleware.uploadAvatar, UserValidator.update, UserController.update)
 
-Router.get('/business', BusinessController.paginate)
-Router.get('/business/:id', BusinessController.show)
-Router.post('/business', BusinessController.create)
-Router.put('/business/:id', BusinessController.update)
+Router.post('/chat', ChatController.create)
 
 module.exports = Router;

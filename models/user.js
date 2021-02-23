@@ -43,10 +43,6 @@ const userSchema = new Schema({
     default: '',
     select: false
   },
-  business: [{
-    type: Schema.Types.ObjectId,
-    ref: 'business'
-  }],
   role: {
     type: String,
     default: 'user'
