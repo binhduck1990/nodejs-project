@@ -6,7 +6,7 @@ createdChat = async (req) => {
         receiver: req.body.receiver,
         sender: req.body.sender
     })
-    await chat.save()
+    return chat.save()
 }
 
 module.exports = {
