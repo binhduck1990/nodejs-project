@@ -4,7 +4,8 @@ createdChat = async (req) => {
     const chat = new chatModel({
         message: req.message,
         receiver: req.receiver,
-        sender: req.sender
+        sender: req.sender,
+        message_type: req.type
     })
     return chat.save()
 }

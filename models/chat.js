@@ -10,6 +10,9 @@ const chatSchema = new Schema({
   },
   receiver: {
     type: Schema.Types.ObjectId,
+  },
+  message_type: {
+    type: String
   }
 }, 
   {collection: 'chat', timestamps: true}
