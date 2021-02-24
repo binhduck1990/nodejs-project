@@ -31,5 +31,6 @@ Router.delete('/user/:id', RoleMiddleware.canManageUser, UserController.destroy)
 Router.put('/user/:id', RoleMiddleware.canManageUser, MulterMiddleware.uploadAvatar, UserValidator.update, UserController.update)
 
 Router.post('/chat', ChatController.create)
+Router.get('/chat', ChatController.index)
 
 module.exports = Router;

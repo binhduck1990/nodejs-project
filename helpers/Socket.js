@@ -1,3 +1,5 @@
+const chatService = require('../services/chatService')
+
 const users = {}
 const connect = (io) => {
     io.on('connection', (socket) => {
@@ -34,6 +36,7 @@ const connect = (io) => {
                     socket.broadcast.to(receiver[i]).emit('chat', {sender: object.sender, receiver: object.receiver, message: message})
                 }
             }
+            chatService.createdChat({sender: object.sender, receiver: object.receiver, message: message})
         })
         socket.on('disconnect', async () => {
             for (const id in users) {
