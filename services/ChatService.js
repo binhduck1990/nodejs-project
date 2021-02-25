@@ -2,7 +2,7 @@ const chatModel = require('../models/chat')
 
 createdChat = async (req) => {
     const chat = new chatModel({
-        message: req.message,
+        message: req.file ? req.file.filename : req.message,
         receiver: req.receiver,
         sender: req.sender,
         message_type: req.type
