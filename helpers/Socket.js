@@ -32,7 +32,9 @@ const connect = (io) => {
             const receiver = users[object.receiver]
             const message = object.message
             const type = object.type
-            await chatService.createdChat({body: {sender: object.sender, receiver: object.receiver, message: message, type: type}})
+            if(type !== 'file'){
+                await chatService.createdChat({body: {sender: object.sender, receiver: object.receiver, message: message, type: type}})
+            }
             if(receiver && sender && message){
                 for(let i = 0; i < receiver.length; i++){
                     socket.broadcast.to(receiver[i]).emit('chat', {sender: object.sender, receiver: object.receiver, message: message, message_type: type})
