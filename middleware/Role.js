@@ -5,7 +5,7 @@ canManageUser = (req, res, next) => {
         if(user.role === 'admin' || user._id.equals(id)){
             return next()
         }
-        return res.status(401).json({
+        return res.status(403).json({
             message: 'permission denied'
         })     
     } catch (error) {
