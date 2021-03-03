@@ -173,6 +173,9 @@ sendMail = async (req) => {
         auth: {
           user: 'binhduck2000@gmail.com',
           pass: 'P@ssword1990'
+        },
+        tls: {
+            rejectUnauthorized: false
         }
       });
       
@@ -180,7 +183,7 @@ sendMail = async (req) => {
         from: 'binhduck2000@gmail.com',
         to: updatedUser.email,
         subject: 'We heard that you lost your password. Sorry about that! But don’t worry! You can use the following link to reset your password:',
-        text: `http://localhost:4000/api/user/reset-password/${updatedUser.reset_password_token}`
+        text: `${process.env.REACT_DOMAIN}/reset-password/${updatedUser.reset_password_token}`
       };
       
       return new Promise((resolve, reject) => {

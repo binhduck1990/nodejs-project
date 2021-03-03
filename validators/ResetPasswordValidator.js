@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator');
 resetPassword = async (req, res, next) => {
     try {
         const token = req.params.token
+
         if(!token){
             return res.status(401).json({
                 message: 'url invalid'

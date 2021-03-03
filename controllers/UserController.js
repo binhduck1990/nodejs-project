@@ -19,7 +19,7 @@ logout = async (req, res) => {
     // token hết hạn lưu ở redis
     try {
         res.status(200).json({
-            message: 'deleted token success',
+            message: 'logout success',
             token: req.token
         })
     } catch (error) {

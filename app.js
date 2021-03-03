@@ -19,7 +19,7 @@ app.use(cors({origin: '*'}))
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 socket.connect(io)
-server.listen(5000)
+server.listen(process.env.SOCKET_PORT)
 
 
 // api 
