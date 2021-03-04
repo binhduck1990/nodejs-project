@@ -1,4 +1,4 @@
-const chatService = require('../services/chatService')
+const chatService = require('../services/ChatService')
 
 const users = {}
 const connect = (io) => {
