@@ -75,6 +75,7 @@ findUserByIdAndRemove = async (id) => {
 }
 
 createdUser = async (req) => {
+    console.log(req.file)
     const password = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT))
     const user = new userModel({
         username: req.body.username,
@@ -170,14 +171,12 @@ sendMail = async (req) => {
     const updatedUser = await user.save()
     const transporter = nodemailer.createTransport({
         service: 'gmail',
+        host: 'smtp.gmail.com',
         auth: {
           user: 'binhduck2000@gmail.com',
           pass: 'P@ssword1990'
-        },
-        tls: {
-            rejectUnauthorized: false
         }
-      });
+      });   
       
       const mailOptions = {
         from: 'binhduck2000@gmail.com',
