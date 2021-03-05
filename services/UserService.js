@@ -170,8 +170,10 @@ sendMail = async (req) => {
     // lưu token reset password vào database
     const updatedUser = await user.save()
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
         host: 'smtp.gmail.com',
+        port: 587,
+        ignoreTLS: false,
+        secure: false,
         auth: {
           user: 'binhduck2000@gmail.com',
           pass: 'P@ssword1990'
