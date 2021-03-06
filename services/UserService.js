@@ -75,7 +75,6 @@ findUserByIdAndRemove = async (id) => {
 }
 
 createdUser = async (req) => {
-    console.log(req.file)
     const password = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT))
     const user = new userModel({
         username: req.body.username,
@@ -170,17 +169,19 @@ sendMail = async (req) => {
     // lưu token reset password vào database
     const updatedUser = await user.save()
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        service: 'gmail',
         auth: {
-          user: 'binhduck2000@gmail.com',
-          pass: 'P@ssword1990'
+            type: 'OAuth2',
+            user: 'binhduck1990@gmail.com',
+            clientId: '882411294326-b01338tsk2p4i3hijnch1ih5p6hd6jq8.apps.googleusercontent.com',
+            clientSecret: 'w0kqux61NhYVMHZnEDp7pmTY',
+            refreshToken: '1//04NzAg_In9BUlCgYIARAAGAQSNwF-L9IrUBsYc9bAd61Yak9My0ANm8zwFpv6MGv0A8elhs6KMErJmy5KaHpmra2LAU4ge7yF5GE',
+            accessToken: 'ya29.a0AfH6SMA_w3nrEGl8bnhcedGnyglKxy7od15vtjEk7MCgCOSvGMM8ePDV-PS0w8DMfsbL9KazljLugvk-FGDfApXtsiCqSeGHMmg6V72HmSH5x3jCNv0wwNgNlopV00zUIf3U-6nzTR8VZpcppVnFtx_uJpEG'
         }
       });   
       
       const mailOptions = {
-        from: 'binhduck2000@gmail.com',
+        from: 'binhduck1990@gmail.com',
         to: updatedUser.email,
         subject: 'We heard that you lost your password. Sorry about that! But don’t worry! You can use the following link to reset your password:',
         text: `${process.env.REACT_DOMAIN}/reset-password/${updatedUser.reset_password_token}`
