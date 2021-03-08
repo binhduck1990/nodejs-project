@@ -4,6 +4,7 @@ var Router = express.Router();
 // Controller
 const UserController = require('../controllers/UserController')
 const ChatController = require('../controllers/ChatController')
+const SettingController = require('../controllers/SettingController')
 // MiddleWare
 const AuthToken = require('../middleware/AuthToken')
 const RoleMiddleware = require('../middleware/Role')
@@ -32,5 +33,7 @@ Router.put('/user/:id', RoleMiddleware.canManageUser, MulterMiddleware.uploadAva
 
 Router.post('/chat', MulterMiddleware.uploadAvatar, ChatController.create)
 Router.get('/chat', ChatController.index)
+
+Router.post('/setting/upload-default-avatar', MulterMiddleware.uploadDefaultAvatar, SettingController.updateDefaultAvatar)
 
 module.exports = Router;

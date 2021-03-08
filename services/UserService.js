@@ -86,21 +86,10 @@ createdUser = async (req) => {
         gender: req.body.gender,
         birthday: req.body.birthday,
         hobbies: req.body.hobbies,
-        avatar: req.file ? req.file.filename : getAvatarByGender(req.body.gender)
+        avatar: req.file ? req.file.filename : 'default_avatar.jpeg'
     })
     await user.save()
     return userModel.findById(user._id)
-}
-
-getAvatarByGender = (gender) => {
-    let avatar = 'default_avatar.jpeg'
-    if(gender === 'male'){
-        avatar = 'default_avatar_male.jpeg'
-    }
-    if(gender === 'female'){
-        avatar = 'default_avatar_female.jpeg'
-    }
-    return avatar
 }
 
 updatedUser = async (req) => {
@@ -144,11 +133,7 @@ updatedUser = async (req) => {
     if(req.file){
         user.avatar = req.file.filename
     }else{
-        if(req.body.default_avatar && req.body.gender === 'male'){
-            user.avatar = 'default_avatar_male.jpeg'
-        }else if(req.body.default_avatar && req.body.gender === 'female'){
-            user.avatar = 'default_avatar_female.jpeg'
-        }else if(req.body.default_avatar){
+        if(req.body.default_avatar){
             user.avatar = 'default_avatar.jpeg'
         }
     }
