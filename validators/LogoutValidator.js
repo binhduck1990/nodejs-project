@@ -7,7 +7,7 @@ logout = async (req, res, next) => {
     try {
         let token = req.headers.authorization
         if(!token){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'no token provided'
             })
         }
@@ -16,8 +16,8 @@ logout = async (req, res, next) => {
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
             if(decodedToken.type !== 'token'){
-                return res.status(401).json({
-                    message: 'invalid token'
+                return res.status(400).json({
+                    message: 'token is invalid'
                 })
             }
         } catch (jwt_error) {
@@ -26,7 +26,7 @@ logout = async (req, res, next) => {
 
         const user = await userModel.findById(decodedToken.id)
         if(!user){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'user not found'
             })
         }

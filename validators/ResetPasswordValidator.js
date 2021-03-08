@@ -7,32 +7,32 @@ resetPassword = async (req, res, next) => {
         const token = req.params.token
 
         if(!token){
-            return res.status(401).json({
-                message: 'url invalid'
+            return res.status(400).json({
+                message: 'no token provided'
             })
         }
         
         try {
             var decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
             if(decodedToken.type !== 'resetPasswordToken'){
-                return res.status(401).json({
-                    message: 'url invalid'
+                return res.status(400).json({
+                    message: 'token is invalid'
                 })
             }
         } catch (jwt_error) {
-            return res.status(401).json({message: 'url invalid'});
+            return res.status(401).json({message: jwt_error.message});
         }
 
         const user = await userModel.findById(decodedToken.id).select('+password +reset_password_token')
         if(!user){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'user not found'
             })
         }
 
         if(user.reset_password_token !== token){
-            return res.status(401).json({
-                message: 'url invalid'
+            return res.status(400).json({
+                message: 'token is invalid'
             })
         }
 

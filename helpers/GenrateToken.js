@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 generateToken = async (user) => {
     const token = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "1 days"}, function(err, token){
+        jwt.sign({ id: user._id, type: 'token' }, process.env.SECRET_KEY, {expiresIn: "3 days"}, function(err, token){
             if(!err){
                 resolve(token)
             }
@@ -14,7 +14,7 @@ generateToken = async (user) => {
 
 generateRefreshToken = async (user) => {
     const token = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "30 days"}, function(err, token){
+        jwt.sign({ id: user._id, type: 'refreshToken' }, process.env.SECRET_KEY, {expiresIn: "365 days"}, function(err, token){
             if(!err){
                 resolve(token)
             }
@@ -26,7 +26,7 @@ generateRefreshToken = async (user) => {
 
 generateResetPasswordToken = async (user) => {
     const token = new Promise((resolve, reject) => {
-        jwt.sign({ id: user._id, type: 'resetPasswordToken' }, process.env.SECRET_KEY, {expiresIn: "3 days"}, function(err, token){
+        jwt.sign({ id: user._id, username: user.username, type: 'resetPasswordToken' }, process.env.SECRET_KEY, {expiresIn: "3 days"}, function(err, token){
             if(!err){
                 resolve(token)
             }

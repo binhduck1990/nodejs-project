@@ -7,7 +7,7 @@ refresh = async (req, res, next) => {
         // kiểm tra refresh_token gửi lên có hợp lệ không
         const refreshToken = req.headers.authorization.trim().split(" ")[1] || req.body.refresh_token || req.query.refresh_token
         if(!refreshToken){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'no refresh_token provided'
             })
         }
@@ -22,20 +22,20 @@ refresh = async (req, res, next) => {
 
         // Nếu token hợp lệ thì kiểm tra tiếp các thông tin khác trong token
         if(decodedToken && decodedToken.type !== 'refreshToken'){
-            return res.status(401).json({
-                message: 'invalid refresh_token'
+            return res.status(400).json({
+                message: 'refresh_token is invalid'
             })
         }
 
         const user = await userModel.findById(decodedToken.id).select('+refresh_token')
         if(!user){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'user not found'
             })
         }
      
         if(user.refresh_token != refreshToken){
-            return res.status(401).json({
+            return res.status(400).json({
                 message: 'invalid refresh_token'
             }) 
         }
