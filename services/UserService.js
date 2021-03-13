@@ -21,44 +21,43 @@ paginate = async (req) => {
     const sortField = req.query.sort_field || 'createdAt'
     const sortBy = req.query.sort_by && req.query.sort_by.toLowerCase() == 'asc' ? 'asc' : 'desc'
 
-    const userQuery = userModel.find().sort({[sortField]: sortBy}).skip(offset).limit(pageSize)
-    const totalUserQuery = userModel.countDocuments()
+    const query = {}
 
     if(req.query.username){
-        userQuery.where('username', new RegExp(req.query.username, "i"))
-        totalUserQuery.where('username', new RegExp(req.query.username, "i"))
+        query.username = new RegExp(req.query.username, "i")
     }
     if(req.query.email){
-        userQuery.where('email', new RegExp(req.query.email, "i"))
-        totalUserQuery.where('email', new RegExp(req.query.email, "i"))
+        query.email = new RegExp(req.query.email, "i")
     }
     if(req.query.age){
-        userQuery.where('age', req.query.age)    
-        totalUserQuery.where('age', new RegExp(req.query.age, "i"))
+        query.age = parseInt(req.query.age)
     }
     if(req.query.address){
-        userQuery.where('address', new RegExp(req.query.address, "i"))
-        totalUserQuery.where('address', new RegExp(req.query.address, "i"))
+        query.address = new RegExp(req.query.address, "i")
     }
     if(req.query.phone){
-        userQuery.where('phone', new RegExp(req.query.phone, "i"))
-        totalUserQuery.where('phone', new RegExp(req.query.phone, "i"))
+        query.phone = req.query.phone
     }
     if(req.query.created_at){
-        const startDay = new moment(req.query.created_at, 'DD-MM-YYYY').startOf('day')
-        const endDay = new moment(req.query.created_at, 'DD-MM-YYYY').endOf('day')
-        userQuery.where('createdAt').gte(startDay).lte(endDay)
-        totalUserQuery.where('createdAt').gte(startDay).lte(endDay)
+        const startDay = new moment(req.query.created_at, 'DD-MM-YYYY').startOf('day').format()
+        const endDay = new moment(req.query.created_at, 'DD-MM-YYYY').endOf('day').format()
+        query.createdAt = {$gte: new Date(startDay), $lte: new Date(endDay)}
     }
-
-    const usersProgess = userQuery.exec()
-    const totalProgess = totalUserQuery.exec()
+ 
+    const totalProgess = userModel.aggregate().match(query).count('total')
+    const usersProgess = userModel.aggregate()
+    .lookup({from: 'chat', localField: '_id', foreignField: 'sender', as: 'messages' })
+    .match(query)
+    .sort({[sortField]: sortBy})
+    .skip(offset)
+    .limit(pageSize)
+    .exec()
 
     const users = await usersProgess
-    const total = await totalProgess
+    const [total] = await totalProgess
 
     paginate.users = users
-    paginate.total = total
+    paginate.total = total.total
     paginate.page = page
     paginate.pageSize = pageSize
     
