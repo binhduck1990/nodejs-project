@@ -16,7 +16,7 @@ const chatSchema = new Schema({
   }
 }, 
   {collection: 'chat', timestamps: true}
-  ); 
+  )
   
   const chat = mongoose.model('chat', chatSchema);
   module.exports = chat
